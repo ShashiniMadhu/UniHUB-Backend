@@ -11,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class AdminDAOImpl implements AdminDAO {
@@ -130,5 +132,107 @@ public class AdminDAOImpl implements AdminDAO {
             }
             closeResources(roleStatement, userStatement, connection);
         }
+    }
+
+    @Override
+    public List<UserDTO> viewStudents() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<UserDTO> students = new ArrayList<>();
+
+        try {
+            connection = databaseConnection.getConnection();
+
+            String sql = """
+                SELECT u.user_id, u.f_name, u.l_name, u.email, u.NIC, u.address, 
+                       u.contact, u.DOB, u.role, s.student_id
+                FROM user u
+                INNER JOIN student s ON u.user_id = s.user_Id
+                WHERE u.role = 'STUDENT'
+                """;
+
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUserId(resultSet.getInt("user_id"));
+
+                // Concatenate first name and last name as full name
+                String fullName = resultSet.getString("f_name") + " " + resultSet.getString("l_name");
+                userDTO.setFName(fullName); // Store full name in fName field
+                userDTO.setLName(null); // Set lName to null since we're using fName for full name
+
+                userDTO.setEmail(resultSet.getString("email"));
+                userDTO.setNic(resultSet.getString("NIC"));
+                userDTO.setAddress(resultSet.getString("address"));
+                userDTO.setContact(resultSet.getString("contact"));
+                userDTO.setDob(resultSet.getDate("DOB").toLocalDate());
+                userDTO.setRole(resultSet.getString("role"));
+                userDTO.setStudentId(resultSet.getInt("student_id"));
+                userDTO.setPassword(null); // Don't return password for security
+
+                students.add(userDTO);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while retrieving students: " + e.getMessage());
+        } finally {
+            closeResources(resultSet, statement, connection);
+        }
+
+        return students;
+    }
+
+    @Override
+    public List<UserDTO> viewLecturers() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<UserDTO> lecturers = new ArrayList<>();
+
+        try {
+            connection = databaseConnection.getConnection();
+
+            String sql = """
+                SELECT u.user_id, u.f_name, u.l_name, u.email, u.NIC, u.address, 
+                       u.contact, u.DOB, u.role, l.lecturer_id
+                FROM user u
+                INNER JOIN lecturer l ON u.user_id = l.user_Id
+                WHERE u.role = 'LECTURER'
+                """;
+
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUserId(resultSet.getInt("user_id"));
+
+                // Concatenate first name and last name as full name
+                String fullName = resultSet.getString("f_name") + " " + resultSet.getString("l_name");
+                userDTO.setFName(fullName); // Store full name in fName field
+                userDTO.setLName(null); // Set lName to null since we're using fName for full name
+
+                userDTO.setEmail(resultSet.getString("email"));
+                userDTO.setNic(resultSet.getString("NIC"));
+                userDTO.setAddress(resultSet.getString("address"));
+                userDTO.setContact(resultSet.getString("contact"));
+                userDTO.setDob(resultSet.getDate("DOB").toLocalDate());
+                userDTO.setRole(resultSet.getString("role"));
+                userDTO.setLecturerId(resultSet.getInt("lecturer_id"));
+                userDTO.setPassword(null); // Don't return password for security
+
+                lecturers.add(userDTO);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while retrieving lecturers: " + e.getMessage());
+        } finally {
+            closeResources(resultSet, statement, connection);
+        }
+
+        return lecturers;
     }
 }

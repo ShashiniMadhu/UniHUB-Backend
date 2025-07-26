@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class AdminServiceImpl implements AdminService {
     @Autowired
@@ -50,5 +52,17 @@ public class AdminServiceImpl implements AdminService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to create user: " + e.getMessage());
         }
+    }
+
+    @Override
+    public List<UserDTO> viewStudents() {
+        List<UserDTO> students = adminDAO.viewStudents();
+        return students;
+    }
+
+    @Override
+    public List<UserDTO> viewLecturers() {
+        List<UserDTO> lecturers = adminDAO.viewLecturers();
+        return lecturers;
     }
 }
