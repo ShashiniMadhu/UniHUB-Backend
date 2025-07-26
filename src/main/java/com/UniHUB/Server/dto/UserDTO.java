@@ -11,19 +11,19 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDTO {
-    @JsonProperty("userId")
+    @JsonProperty("user_Id")
     private Integer userId;
 
-    @JsonProperty("fName")
+    @JsonProperty("f_name")
     private String fName;
 
-    @JsonProperty("lName")
+    @JsonProperty("l_name")
     private String lName;
 
     @JsonProperty("email")
     private String email;
 
-    @JsonProperty("nic")
+    @JsonProperty("NIC")
     private String nic;
 
     @JsonProperty("address")
@@ -32,7 +32,7 @@ public class UserDTO {
     @JsonProperty("contact")
     private String contact;
 
-    @JsonProperty("dob")
+    @JsonProperty("DOB")
     private LocalDate dob;
 
     @JsonProperty("role")
@@ -42,9 +42,9 @@ public class UserDTO {
     private String password;
 
     // Additional fields for specific roles
-    @JsonProperty("studentId")
+    @JsonProperty("student_Id")
     private Integer studentId; // Only populated for STUDENT role
 
-    @JsonProperty("lecturerId")
+    @JsonProperty("lecturer_Id")
     private Integer lecturerId; // Only populated for LECTURER role
 }
