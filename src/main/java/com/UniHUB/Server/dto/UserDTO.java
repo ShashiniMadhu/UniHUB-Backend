@@ -41,10 +41,13 @@ public class UserDTO {
     @JsonProperty("password")
     private String password;
 
+    @JsonProperty("status")
+    private String status; // ACTIVE, DEACTIVATED
+
     // Additional fields for specific roles
     @JsonProperty("student_Id")
-    private Integer studentId; // Only populated for STUDENT role
+    private Integer studentId;
 
     @JsonProperty("lecturer_Id")
-    private Integer lecturerId; // Only populated for LECTURER role
+    private Integer lecturerId;
 }
