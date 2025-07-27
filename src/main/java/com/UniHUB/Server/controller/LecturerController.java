@@ -2,6 +2,7 @@ package com.UniHUB.Server.controller;
 
 import com.UniHUB.Server.dto.AnnouncementDTO;
 import com.UniHUB.Server.dto.AssignmentsDTO;
+import com.UniHUB.Server.dto.FeedbackDTO;
 import com.UniHUB.Server.dto.ResourceDTO;
 import com.UniHUB.Server.service.LecturerService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/lecturer")
@@ -136,5 +138,52 @@ public class LecturerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/{lecturerId}/feedback")
+    public ResponseEntity<List<FeedbackDTO>> getFeedback(
+            @PathVariable Integer lecturerId
+    ) {
+        List<FeedbackDTO> feedbacks = lecturerService.getFeedbackForLecturer(lecturerId);
+        return ResponseEntity.ok(feedbacks);
+    }
+
+    @GetMapping("/{lecturerId}/announcements")
+    public ResponseEntity<List<AnnouncementDTO>> getAnnouncements(
+            @PathVariable Integer lecturerId) {
+
+        List<AnnouncementDTO> announcements =
+                lecturerService.getAnnouncementsByLecturerId(lecturerId);
+
+        return ResponseEntity.ok(announcements);
+    }
+
+    @PutMapping(
+            value = "/{lecturerId}/announcement",
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<AnnouncementDTO> updateAnnouncement(
+            @PathVariable Integer lecturerId,
+            @RequestBody AnnouncementDTO announcementDTO
+    ) {
+        // ensure the path‐ID is applied
+        announcementDTO.setLecturerId(lecturerId);
+        AnnouncementDTO updated =
+                lecturerService.updateAnnouncement(announcementDTO);
+        return ResponseEntity.ok(updated);
+    }
+
+
+
+    @DeleteMapping("/{lecturerId}/announcement/{announcementId}")
+    public ResponseEntity<Void> deleteAnnouncement(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer announcementId
+    ) {
+        lecturerService.deleteAnnouncement(announcementId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 
 }

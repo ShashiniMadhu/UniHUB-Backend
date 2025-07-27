@@ -1,12 +1,19 @@
 package com.UniHUB.Server.dao;
 
-import com.UniHUB.Server.dto.AnnouncementDTO;
-import com.UniHUB.Server.dto.AssignmentsDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
+import com.UniHUB.Server.dto.*;
+
+import java.util.List;
 
 public interface LecturerDAO {
     AnnouncementDTO saveAnnouncement(AnnouncementDTO announcementDTO);
     AssignmentsDTO saveAssignments(AssignmentsDTO assignmentsDTO);
     ResourceDTO saveResources(ResourceDTO resourceDTO);
+    List<FeedbackDTO> findFeedbackByLecturer(Integer lecturerId);
+    List<LecturerCourseDTO> findCoursesByLecturerId(Integer lecturerId);
+    List<AnnouncementDTO> findAnnouncementsByCourseId(Integer courseId);
+    AnnouncementDTO updateAnnouncement(AnnouncementDTO announcementDTO);
+    boolean deleteAnnouncement(Integer announcementId);
+
+
 
 }

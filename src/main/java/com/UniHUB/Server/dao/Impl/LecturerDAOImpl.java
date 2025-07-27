@@ -1,21 +1,22 @@
 package com.UniHUB.Server.dao.Impl;
 
 import com.UniHUB.Server.dao.LecturerDAO;
-import com.UniHUB.Server.dto.AnnouncementDTO;
-import com.UniHUB.Server.dto.AssignmentsDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
+import com.UniHUB.Server.dto.*;
 import com.UniHUB.Server.util.DatabaseConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class LecturerDAOImpl implements LecturerDAO {
 
     @Autowired
     private DatabaseConnection databaseConnection;
+
 
     @Override
     public AnnouncementDTO saveAnnouncement(AnnouncementDTO announcementDTO) {
@@ -138,5 +139,152 @@ public class LecturerDAOImpl implements LecturerDAO {
             );
         }
     }
+
+    @Override
+    public List<FeedbackDTO> findFeedbackByLecturer(Integer lecturerId) {
+        String sql = """
+            SELECT f.feedback_id,
+                   f.student_id,
+                   f.course_id,
+                   f.lecturer_id,
+                   f.review,
+                   f.rate
+              FROM feedback f
+              JOIN lecturer_course lc
+                ON f.course_id = lc.course_id
+               AND f.lecturer_id = lc.lecturer_id
+             WHERE lc.lecturer_id = ?
+            """;
+
+        List<FeedbackDTO> list = new ArrayList<>();
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, lecturerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    FeedbackDTO dto = new FeedbackDTO(
+                            rs.getInt("feedback_id"),
+                            rs.getInt("student_id"),
+                            rs.getInt("course_id"),
+                            rs.getInt("lecturer_id"),
+                            rs.getString("review"),
+                            rs.getInt("rate")
+                    );
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching feedback", e);
+        }
+        return list;
+    }
+
+    @Override
+    public List<LecturerCourseDTO> findCoursesByLecturerId(Integer lecturerId) {
+        String sql = """
+            SELECT 
+              lc.course_id    AS courseId,
+              lc.lecturer_id  AS lecturerId
+            FROM lecturer_course lc
+            WHERE lc.lecturer_id = ?
+            """;
+
+        List<LecturerCourseDTO> list = new ArrayList<>();
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, lecturerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LecturerCourseDTO dto = new LecturerCourseDTO();
+                    dto.setCourseId(rs.getInt("courseId"));
+                    dto.setLecturerId(rs.getInt("lecturerId"));
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching courses", e);
+        }
+        return list;
+    }
+
+    @Override
+    public List<AnnouncementDTO> findAnnouncementsByCourseId(Integer courseId) {
+        String sql = """
+            SELECT
+              a.announcement_id AS announcementId,
+              a.course_id       AS courseId,
+              a.link           AS link,
+              a.content         AS content,
+              a.attachment      AS attachment
+            FROM announcement a
+            WHERE a.course_id = ?
+            ORDER BY a.announcement_id DESC
+            """;
+
+        List<AnnouncementDTO> list = new ArrayList<>();
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, courseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    AnnouncementDTO dto = new AnnouncementDTO();
+                    dto.setAnnouncementId(rs.getInt("announcementId"));
+                    dto.setCourseId(rs.getInt("courseId"));
+                    dto.setLink(rs.getString("link"));
+                    dto.setContent(rs.getString("content"));
+                    dto.setAttachment(rs.getString("attachment"));
+                    // no createdAt column any more
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching announcements", e);
+        }
+        return list;
+    }
+
+    @Override
+    public AnnouncementDTO updateAnnouncement(AnnouncementDTO announcementDTO) {
+        String sql = """
+            UPDATE announcement
+               SET content    = ?,
+                   link       = ?,
+                   attachment = ?
+             WHERE announcement_id = ?
+            """;
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, announcementDTO.getContent());
+            ps.setString(2, announcementDTO.getLink());
+            ps.setString(3, announcementDTO.getAttachment());
+            ps.setInt(4, announcementDTO.getAnnouncementId());
+
+            int updated = ps.executeUpdate();
+            if (updated == 0) {
+                throw new SQLException("No announcement found with id " +
+                        announcementDTO.getAnnouncementId());
+            }
+            return announcementDTO;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating announcement", e);
+        }
+    }
+
+
+
+    @Override
+    public boolean deleteAnnouncement(Integer announcementId) {
+        String sql = "DELETE FROM announcement WHERE announcement_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, announcementId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting announcement", e);
+        }
+    }
+
+
 
 }
