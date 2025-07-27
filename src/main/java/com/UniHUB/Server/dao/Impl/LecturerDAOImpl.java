@@ -2,15 +2,13 @@ package com.UniHUB.Server.dao.Impl;
 
 import com.UniHUB.Server.dao.LecturerDAO;
 import com.UniHUB.Server.dto.AnnouncementDTO;
+import com.UniHUB.Server.dto.AssignmentsDTO;
 import com.UniHUB.Server.util.DatabaseConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDate;
 
 @Repository
 public class LecturerDAOImpl implements LecturerDAO {
@@ -51,6 +49,49 @@ public class LecturerDAOImpl implements LecturerDAO {
             }
 
             return announcementDTO;
+
+        } catch (SQLException e) {
+            throw new RuntimeException(
+                    "Database error while saving announcement: " + e.getMessage(), e
+            );
+        }
+    }
+
+
+    @Override
+    public AssignmentsDTO saveAssignments(AssignmentsDTO assignmentsDTO) {
+        String sql = """
+            INSERT INTO assignments (lecturer_id, course_id, title, description, attachment , date)
+            VALUES (?, ?, ?, ?, ?,?)
+        """;
+
+        try (
+                Connection connection = databaseConnection.getConnection();
+                PreparedStatement ps = connection.prepareStatement(
+                        sql, Statement.RETURN_GENERATED_KEYS
+                )
+        ) {
+            ps.setInt(1, assignmentsDTO.getLecturerId());
+            ps.setInt(2, assignmentsDTO.getCourseId());
+            ps.setString(3, assignmentsDTO.getTitle());
+            ps.setString(4, assignmentsDTO.getDescription());
+            ps.setString(5, assignmentsDTO.getAttachment());
+            ps.setDate(6, Date.valueOf(assignmentsDTO.getDate() != null ? assignmentsDTO.getDate() : LocalDate.now()));
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating announcement failed, no rows affected.");
+            }
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    assignmentsDTO.setAssignmentId(rs.getInt(1));
+                } else {
+                    throw new SQLException("Creating announcement failed, no ID obtained.");
+                }
+            }
+
+            return assignmentsDTO;
 
         } catch (SQLException e) {
             throw new RuntimeException(
