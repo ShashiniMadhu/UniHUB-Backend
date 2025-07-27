@@ -3,6 +3,7 @@ package com.UniHUB.Server.service.Impl;
 import com.UniHUB.Server.dto.AnnouncementDTO;
 import com.UniHUB.Server.dao.LecturerDAO;
 import com.UniHUB.Server.dto.AssignmentsDTO;
+import com.UniHUB.Server.dto.ResourceDTO;
 import com.UniHUB.Server.service.LecturerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,5 +22,10 @@ public class LecturerServiceImpl implements LecturerService {
     @Override
     public AssignmentsDTO publishAssignment(AssignmentsDTO assignmentsDTO){
         return lecturerDAO.saveAssignments(assignmentsDTO);
+    }
+
+    @Override
+    public ResourceDTO publishresources(ResourceDTO resourceDTO){
+        return lecturerDAO.saveResources(resourceDTO);
     }
 }
