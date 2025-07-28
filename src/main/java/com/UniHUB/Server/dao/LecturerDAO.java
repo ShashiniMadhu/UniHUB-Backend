@@ -13,6 +13,11 @@ public interface LecturerDAO {
     List<AnnouncementDTO> findAnnouncementsByCourseId(Integer courseId);
     AnnouncementDTO updateAnnouncement(AnnouncementDTO announcementDTO);
     boolean deleteAnnouncement(Integer announcementId);
+    List<AssignmentsDTO> findAssignmentsByCourse(Integer courseId);
+    boolean deleteAssignment(Integer assignmentId);
+    List<ResourceDTO> findResourcesByCourse(Integer courseId);
+    boolean deleteResource(Integer resourceId);
+
 
 
 

@@ -183,6 +183,38 @@ public class LecturerController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{lecturerId}/assignments")
+    public ResponseEntity<List<AssignmentsDTO>> getAssignments(@PathVariable Integer lecturerId) {
+        List<AssignmentsDTO> assignments = lecturerService.getAssignmentsByLecturer(lecturerId);
+        return ResponseEntity.ok(assignments);
+    }
+
+    @DeleteMapping("/{lecturerId}/assignment/{assignmentId}")
+    public ResponseEntity<Void> deleteAssignment(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer assignmentId
+    ) {
+        lecturerService.deleteAssignment(assignmentId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{lecturerId}/resources")
+    public ResponseEntity<List<ResourceDTO>> getResources(
+            @PathVariable Integer lecturerId) {
+        List<ResourceDTO> list = lecturerService.getResources(lecturerId);
+        return ResponseEntity.ok(list);
+    }
+
+    @DeleteMapping("/{lecturerId}/resource/{resourceId}")
+    public ResponseEntity<Void> deleteResource(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer resourceId
+    ) {
+        lecturerService.deleteResource(resourceId);
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 
 
