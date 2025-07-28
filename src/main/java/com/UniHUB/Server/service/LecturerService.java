@@ -1,9 +1,6 @@
 package com.UniHUB.Server.service;
 
-import com.UniHUB.Server.dto.AnnouncementDTO;
-import com.UniHUB.Server.dto.AssignmentsDTO;
-import com.UniHUB.Server.dto.FeedbackDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
+import com.UniHUB.Server.dto.*;
 
 import java.util.List;
 
@@ -15,6 +12,10 @@ public interface LecturerService {
     List<AnnouncementDTO> getAnnouncementsByLecturerId(Integer lecturerId);
     AnnouncementDTO updateAnnouncement(AnnouncementDTO announcementDTO);
     void deleteAnnouncement(Integer announcementId);
+    List<AssignmentsDTO> getAssignmentsByLecturer(Integer lecturerId);
+    void deleteAssignment(Integer assignmentId);
+    List<ResourceDTO> getResources(Integer lecturerId);
+    void deleteResource(Integer resourceId);
 
 
 }

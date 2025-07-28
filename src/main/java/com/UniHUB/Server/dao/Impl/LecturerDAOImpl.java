@@ -10,12 +10,14 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class LecturerDAOImpl implements LecturerDAO {
 
     @Autowired
     private DatabaseConnection databaseConnection;
+
 
 
     @Override
@@ -284,6 +286,105 @@ public class LecturerDAOImpl implements LecturerDAO {
             throw new RuntimeException("Error deleting announcement", e);
         }
     }
+
+    @Override
+    public List<AssignmentsDTO> findAssignmentsByCourse(Integer courseId) {
+        String sql = """
+        SELECT
+          a.assignment_id   AS assignmentId,
+          a.course_id       AS courseId,
+          a.lecturer_id     AS lecturerId,
+          a.title           AS title,
+          a.description     AS description,
+          a.attachment      AS attachment,
+          a.date            AS date
+        FROM assignments a
+        WHERE a.course_id = ?
+        """;
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, courseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                List<AssignmentsDTO> list = new ArrayList<>();
+                while (rs.next()) {
+                    // read raw date string
+                    String rawDate = rs.getString("date");
+                    LocalDate date = null;
+                    if (rawDate != null && !"0000-00-00".equals(rawDate)) {
+                        date = LocalDate.parse(rawDate);
+                    }
+                    AssignmentsDTO dto = new AssignmentsDTO(
+                            rs.getInt("assignmentId"),
+                            rs.getInt("courseId"),
+                            rs.getInt("lecturerId"),
+                            rs.getString("title"),
+                            rs.getString("description"),
+                            rs.getString("attachment"),
+                            date
+                    );
+                    list.add(dto);
+                }
+                return list;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching assignments", e);
+        }
+    }
+
+    @Override
+    public boolean deleteAssignment(Integer assignmentId) {
+        String sql = "DELETE FROM assignments WHERE assignment_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, assignmentId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting assignment", e);
+        }
+    }
+
+    @Override
+    public List<ResourceDTO> findResourcesByCourse(Integer courseId) {
+        String sql = "SELECT resource_id, course_id, file_name, attachment "
+                + "FROM resource WHERE course_id = ?";
+        List<ResourceDTO> list = new ArrayList<>();
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, courseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ResourceDTO r = new ResourceDTO();
+                    r.setResourceId(rs.getInt("resource_id"));
+                    r.setCourseId(rs.getInt("course_id"));
+                    r.setFileName(rs.getString("file_name"));
+                    r.setAttachment(rs.getString("attachment"));
+                    list.add(r);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching resources for course " + courseId, e);
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteResource(Integer resourceId) {
+        String sql = "DELETE FROM resource WHERE resource_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, resourceId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error deleting resource", e);
+        }
+    }
+
+
+
+
 
 
 
