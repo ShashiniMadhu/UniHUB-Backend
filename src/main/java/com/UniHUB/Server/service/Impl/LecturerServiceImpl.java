@@ -63,6 +63,50 @@ public class LecturerServiceImpl implements LecturerService {
         }
     }
 
+    @Override
+    public List<AssignmentsDTO> getAssignmentsByLecturer(Integer lecturerId) {
+        List<LecturerCourseDTO> courses = lecturerDAO.findCoursesByLecturerId(lecturerId);
+
+        List<AssignmentsDTO> allAssignments = new ArrayList<>();
+        for (LecturerCourseDTO course : courses) {
+            List<AssignmentsDTO> assignmentsForCourse =
+                    lecturerDAO.findAssignmentsByCourse(course.getCourseId());
+            allAssignments.addAll(assignmentsForCourse);
+        }
+
+        return allAssignments;
+    }
+
+    @Override
+    public void deleteAssignment(Integer assignmentId) {
+        boolean ok = lecturerDAO.deleteAssignment(assignmentId);
+        if (!ok) {
+            throw new RuntimeException("Announcement not found with id " + assignmentId);
+        }
+    }
+
+
+    @Override
+    public List<ResourceDTO> getResources(Integer lecturerId) {
+        List<LecturerCourseDTO> courses =
+                lecturerDAO.findCoursesByLecturerId(lecturerId);
+        List<ResourceDTO> all = new ArrayList<>();
+        for (LecturerCourseDTO c : courses) {
+            all.addAll(lecturerDAO.findResourcesByCourse(c.getCourseId()));
+        }
+        return all;
+    }
+
+    @Override
+    public void deleteResource(Integer resourceId) {
+        boolean ok = lecturerDAO.deleteResource(resourceId);
+        if (!ok) {
+            throw new RuntimeException("Resource not found with id " + resourceId);
+        }
+    }
+
+
+
 
 
 
