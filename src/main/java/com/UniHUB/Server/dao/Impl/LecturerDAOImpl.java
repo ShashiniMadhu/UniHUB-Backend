@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -381,6 +382,106 @@ public class LecturerDAOImpl implements LecturerDAO {
             throw new RuntimeException("Error deleting resource", e);
         }
     }
+
+
+
+    @Override
+    public List<AppointmentDTO> findPendingAppointmentsByLecturerId(Integer lecturerId) {
+        String sql = "SELECT appointment_id, student_id, purpose, date, time, status "
+                + "FROM appointment "
+                + "WHERE lecturer_id = ? AND status = 'PENDING'";
+        List<AppointmentDTO> result = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, lecturerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // convert SQL types to DTO types
+                    LocalDate date  = rs.getDate("date").toLocalDate();
+                    LocalTime time  = rs.getTime("time").toLocalTime();
+
+                    // use setters (or builder) since no matching all-args constructor exists
+                    AppointmentDTO dto = new AppointmentDTO();
+                    dto.setAppointmentId(rs.getInt("appointment_id"));
+                    dto.setStudentId(rs.getInt("student_id"));
+                    dto.setPurpose(rs.getString("purpose"));
+                    dto.setDate(date);
+                    dto.setTime(time);
+                    dto.setStatus(rs.getString("status"));
+
+                    result.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching pending appointments", e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId) {
+        String sql =
+                "UPDATE appointment " +
+                        "SET status = ? " +
+                        "WHERE  appointment_id = ? AND lecturer_id = ? AND status = ?";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "APPROVED");
+            ps.setInt(2, appointmentId);
+            ps.setInt(3, lecturerId);
+            ps.setString(4, "PENDING");
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new IllegalArgumentException("Invalid or non-pending appointment");
+            }
+
+            AppointmentDTO dto = new AppointmentDTO();
+            dto.setAppointmentId(appointmentId);
+            dto.setStatus("TAKEN");
+            return dto;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating appointment status", e);
+        }
+    }
+
+    @Override
+    public AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId) {
+        String sql =
+                "UPDATE appointment " +
+                        "SET status = ? " +
+                        "WHERE appointment_id = ? AND lecturer_id = ? AND status = ?";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "REJECTED");
+            ps.setInt(2, appointmentId);
+            ps.setInt(3, lecturerId);
+            ps.setString(4, "PENDING");
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new IllegalArgumentException("Invalid or non-pending appointment");
+            }
+
+            AppointmentDTO dto = new AppointmentDTO();
+            dto.setAppointmentId(appointmentId);
+            dto.setStatus("REJECTED");
+            return dto;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating appointment status", e);
+        }
+    }
+
 
 
 

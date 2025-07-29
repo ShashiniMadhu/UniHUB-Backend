@@ -16,6 +16,8 @@ public interface LecturerService {
     void deleteAssignment(Integer assignmentId);
     List<ResourceDTO> getResources(Integer lecturerId);
     void deleteResource(Integer resourceId);
-
+    List<AppointmentDTO> getPendingAppointments(Integer lecturerId);
+    AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId);
+    AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId);
 
 }
