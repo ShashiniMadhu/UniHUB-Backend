@@ -1,9 +1,6 @@
 package com.UniHUB.Server.controller;
 
-import com.UniHUB.Server.dto.AnnouncementDTO;
-import com.UniHUB.Server.dto.AssignmentsDTO;
-import com.UniHUB.Server.dto.FeedbackDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
+import com.UniHUB.Server.dto.*;
 import com.UniHUB.Server.service.LecturerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -214,7 +211,27 @@ public class LecturerController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/{lecturerId}/appointments/pending")
+    public ResponseEntity<List<AppointmentDTO>> getPendingAppointments(@PathVariable Integer lecturerId) {
+        List<AppointmentDTO> pending = lecturerService.getPendingAppointments(lecturerId);
+        return ResponseEntity.ok(pending);
+    }
 
+    @PutMapping("/{lecturerId}/appointment/{appointmentId}/take")
+    public ResponseEntity<AppointmentDTO> takeAppointment(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer appointmentId) {
+        AppointmentDTO updated = lecturerService.takeAppointment(lecturerId, appointmentId);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PutMapping("/{lecturerId}/appointment/{appointmentId}/reject")
+    public ResponseEntity<AppointmentDTO> rejectAppointment(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer appointmentId) {
+        AppointmentDTO rejected = lecturerService.rejectAppointment(lecturerId, appointmentId);
+        return ResponseEntity.ok(rejected);
+    }
 
 
 
