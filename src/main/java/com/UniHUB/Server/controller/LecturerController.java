@@ -2,6 +2,7 @@ package com.UniHUB.Server.controller;
 
 import com.UniHUB.Server.dto.*;
 import com.UniHUB.Server.service.LecturerService;
+import com.UniHUB.Server.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -20,6 +21,9 @@ public class LecturerController {
 
     @Autowired
     private LecturerService lecturerService;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @PostMapping(value = "/announcement", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> publishAnnouncement(
@@ -233,6 +237,20 @@ public class LecturerController {
         return ResponseEntity.ok(rejected);
     }
 
+    @GetMapping("/{lecturerId}/notifications")
+    public ResponseEntity<List<NotificationDTO>> getNotifications(
+            @PathVariable Integer lecturerId) {
+
+        List<NotificationDTO> notifications =
+                notificationService.getNotificationsByUserId(lecturerId);
+        return ResponseEntity.ok(notifications);
+    }
+
+    @GetMapping("/site/announcements")
+    public ResponseEntity<List<SiteAnnouncementDTO>> getAllSiteAnnouncements() {
+        List<SiteAnnouncementDTO> dtos = lecturerService.getAllSiteAnnouncements();
+        return ResponseEntity.ok(dtos);
+    }
 
 
 }

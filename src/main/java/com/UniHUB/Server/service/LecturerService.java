@@ -19,5 +19,6 @@ public interface LecturerService {
     List<AppointmentDTO> getPendingAppointments(Integer lecturerId);
     AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId);
     AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId);
+    List<SiteAnnouncementDTO> getAllSiteAnnouncements();
 
 }

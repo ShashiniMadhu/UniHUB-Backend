@@ -120,6 +120,13 @@ public class LecturerServiceImpl implements LecturerService {
         return lecturerDAO.rejectAppointment(lecturerId, appointmentId);
     }
 
+    @Override
+    public List<SiteAnnouncementDTO> getAllSiteAnnouncements() {
+        return lecturerDAO.findAllSiteAnnouncements();
+    }
+
+
+
 
 
 
