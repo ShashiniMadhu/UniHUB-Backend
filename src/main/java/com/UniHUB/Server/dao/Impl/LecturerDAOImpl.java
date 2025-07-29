@@ -482,6 +482,57 @@ public class LecturerDAOImpl implements LecturerDAO {
         }
     }
 
+    @Override
+    public List<NotificationDTO> findByUserId(Integer userId) {
+        List<NotificationDTO> list = new ArrayList<>();
+        String sql = "SELECT notification_id, user_id, message, is_read, is_delete "
+                + "FROM notification WHERE user_id=? AND is_delete=FALSE";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    NotificationDTO dto = new NotificationDTO();
+                    dto.setNotificationId(rs.getInt("notification_id"));
+                    dto.setUserId(rs.getInt("user_id"));
+                    dto.setMessage(rs.getString("message"));
+                    dto.setIsRead(rs.getBoolean("is_read"));
+                    dto.setIsDelete(rs.getBoolean("is_delete"));
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching notifications", e);
+        }
+        return list;
+    }
+
+
+    @Override
+    public List<SiteAnnouncementDTO> findAllSiteAnnouncements() {
+        List<SiteAnnouncementDTO> list = new ArrayList<>();
+        String sql = "SELECT announcement_id, topic, description,date,time,created_at FROM site_announcements ORDER BY created_at DESC";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                SiteAnnouncementDTO dto = new SiteAnnouncementDTO();
+                dto.setAnnouncementId(rs.getInt("announcement_id"));
+                dto.setTopic(rs.getString("topic"));
+                dto.setDescription(rs.getString("description"));
+                dto.setDate(rs.getDate("date").toLocalDate());
+                dto.setTime(rs.getTime("time").toLocalTime());
+                dto.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching site announcements", e);
+        }
+        return list;
+    }
+
+
+
 
 
 

@@ -20,6 +20,8 @@ public interface LecturerDAO {
     List<AppointmentDTO> findPendingAppointmentsByLecturerId(Integer lecturerId);
     AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId);
     AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId);
+    List<NotificationDTO> findByUserId(Integer userId);
+    List<SiteAnnouncementDTO> findAllSiteAnnouncements();
 
 
 
