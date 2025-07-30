@@ -56,6 +56,12 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public List<UserDTO> getAllUsers() {
+        List<UserDTO> users = adminDAO.getAllUsers();
+        return users;
+    }
+
+    @Override
     public List<UserDTO> viewStudents() {
         List<UserDTO> students = adminDAO.viewStudents();
         return students;
