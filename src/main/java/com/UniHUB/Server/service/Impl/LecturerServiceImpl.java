@@ -105,6 +105,27 @@ public class LecturerServiceImpl implements LecturerService {
         }
     }
 
+    @Override
+    public List<AppointmentDTO> getPendingAppointments(Integer lecturerId) {
+        return lecturerDAO.findPendingAppointmentsByLecturerId(lecturerId);
+    }
+
+    @Override
+    public AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId) {
+        return lecturerDAO.takeAppointment(lecturerId, appointmentId);
+    }
+
+    @Override
+    public AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId) {
+        return lecturerDAO.rejectAppointment(lecturerId, appointmentId);
+    }
+
+    @Override
+    public List<SiteAnnouncementDTO> getAllSiteAnnouncements() {
+        return lecturerDAO.findAllSiteAnnouncements();
+    }
+
+
 
 
 

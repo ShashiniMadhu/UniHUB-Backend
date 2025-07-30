@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -381,6 +382,157 @@ public class LecturerDAOImpl implements LecturerDAO {
             throw new RuntimeException("Error deleting resource", e);
         }
     }
+
+
+
+    @Override
+    public List<AppointmentDTO> findPendingAppointmentsByLecturerId(Integer lecturerId) {
+        String sql = "SELECT appointment_id, student_id, purpose, date, time, status "
+                + "FROM appointment "
+                + "WHERE lecturer_id = ? AND status = 'PENDING'";
+        List<AppointmentDTO> result = new ArrayList<>();
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, lecturerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // convert SQL types to DTO types
+                    LocalDate date  = rs.getDate("date").toLocalDate();
+                    LocalTime time  = rs.getTime("time").toLocalTime();
+
+                    // use setters (or builder) since no matching all-args constructor exists
+                    AppointmentDTO dto = new AppointmentDTO();
+                    dto.setAppointmentId(rs.getInt("appointment_id"));
+                    dto.setStudentId(rs.getInt("student_id"));
+                    dto.setPurpose(rs.getString("purpose"));
+                    dto.setDate(date);
+                    dto.setTime(time);
+                    dto.setStatus(rs.getString("status"));
+
+                    result.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching pending appointments", e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId) {
+        String sql =
+                "UPDATE appointment " +
+                        "SET status = ? " +
+                        "WHERE  appointment_id = ? AND lecturer_id = ? AND status = ?";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "APPROVED");
+            ps.setInt(2, appointmentId);
+            ps.setInt(3, lecturerId);
+            ps.setString(4, "PENDING");
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new IllegalArgumentException("Invalid or non-pending appointment");
+            }
+
+            AppointmentDTO dto = new AppointmentDTO();
+            dto.setAppointmentId(appointmentId);
+            dto.setStatus("TAKEN");
+            return dto;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating appointment status", e);
+        }
+    }
+
+    @Override
+    public AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId) {
+        String sql =
+                "UPDATE appointment " +
+                        "SET status = ? " +
+                        "WHERE appointment_id = ? AND lecturer_id = ? AND status = ?";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "REJECTED");
+            ps.setInt(2, appointmentId);
+            ps.setInt(3, lecturerId);
+            ps.setString(4, "PENDING");
+
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new IllegalArgumentException("Invalid or non-pending appointment");
+            }
+
+            AppointmentDTO dto = new AppointmentDTO();
+            dto.setAppointmentId(appointmentId);
+            dto.setStatus("REJECTED");
+            return dto;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating appointment status", e);
+        }
+    }
+
+    @Override
+    public List<NotificationDTO> findByUserId(Integer userId) {
+        List<NotificationDTO> list = new ArrayList<>();
+        String sql = "SELECT notification_id, user_id, message, is_read, is_delete "
+                + "FROM notification WHERE user_id=? AND is_delete=FALSE";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    NotificationDTO dto = new NotificationDTO();
+                    dto.setNotificationId(rs.getInt("notification_id"));
+                    dto.setUserId(rs.getInt("user_id"));
+                    dto.setMessage(rs.getString("message"));
+                    dto.setIsRead(rs.getBoolean("is_read"));
+                    dto.setIsDelete(rs.getBoolean("is_delete"));
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching notifications", e);
+        }
+        return list;
+    }
+
+
+    @Override
+    public List<SiteAnnouncementDTO> findAllSiteAnnouncements() {
+        List<SiteAnnouncementDTO> list = new ArrayList<>();
+        String sql = "SELECT announcement_id, topic, description,date,time,created_at FROM site_announcements ORDER BY created_at DESC";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                SiteAnnouncementDTO dto = new SiteAnnouncementDTO();
+                dto.setAnnouncementId(rs.getInt("announcement_id"));
+                dto.setTopic(rs.getString("topic"));
+                dto.setDescription(rs.getString("description"));
+                dto.setDate(rs.getDate("date").toLocalDate());
+                dto.setTime(rs.getTime("time").toLocalTime());
+                dto.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                list.add(dto);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching site announcements", e);
+        }
+        return list;
+    }
+
+
+
 
 
 
