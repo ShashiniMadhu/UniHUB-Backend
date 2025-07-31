@@ -137,6 +137,60 @@ public class AdminDAOImpl implements AdminDAO {
     }
 
     @Override
+    public List<UserDTO> getAllUsers() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<UserDTO> users = new ArrayList<>();
+
+        try {
+            connection = databaseConnection.getConnection();
+
+            String sql = """
+            SELECT user_id, f_name, l_name, email, NIC, address, 
+                   contact, DOB, role, password, status
+            FROM user
+            """;
+
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUserId(resultSet.getInt("user_id"));
+
+                // Concatenate first name and last name as full name
+                String fullName = resultSet.getString("f_name") + " " + resultSet.getString("l_name");
+                userDTO.setFName(fullName);  // Using fName field for full name
+                userDTO.setLName(null);      // Null because full name is stored in fName
+
+                userDTO.setEmail(resultSet.getString("email"));
+                userDTO.setNic(resultSet.getString("NIC"));
+                userDTO.setAddress(resultSet.getString("address"));
+                userDTO.setContact(resultSet.getString("contact"));
+                userDTO.setDob(resultSet.getDate("DOB").toLocalDate());
+                userDTO.setRole(resultSet.getString("role"));
+                userDTO.setPassword(null); // Do not expose password
+                userDTO.setStatus(resultSet.getString("status"));
+
+                // These fields are null unless joined with student/lecturer table
+                userDTO.setStudentId(null);
+                userDTO.setLecturerId(null);
+
+                users.add(userDTO);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while retrieving users: " + e.getMessage());
+        } finally {
+            closeResources(resultSet, statement, connection);
+        }
+
+        return users;
+    }
+
+
+    @Override
     public List<UserDTO> viewStudents() {
         Connection connection = null;
         PreparedStatement statement = null;
@@ -148,7 +202,7 @@ public class AdminDAOImpl implements AdminDAO {
 
             String sql = """
                 SELECT u.user_id, u.f_name, u.l_name, u.email, u.NIC, u.address, 
-                       u.contact, u.DOB, u.role, s.student_id
+                       u.contact, u.DOB, u.role,u.password,u.status, s.student_id
                 FROM user u
                 INNER JOIN student s ON u.user_id = s.user_Id
                 WHERE u.role = 'STUDENT'
@@ -172,6 +226,8 @@ public class AdminDAOImpl implements AdminDAO {
                 userDTO.setContact(resultSet.getString("contact"));
                 userDTO.setDob(resultSet.getDate("DOB").toLocalDate());
                 userDTO.setRole(resultSet.getString("role"));
+                userDTO.setPassword(resultSet.getString("password"));
+                userDTO.setStatus(resultSet.getString("status"));
                 userDTO.setStudentId(resultSet.getInt("student_id"));
                 userDTO.setPassword(null); // Don't return password for security
 
@@ -199,7 +255,7 @@ public class AdminDAOImpl implements AdminDAO {
 
             String sql = """
                 SELECT u.user_id, u.f_name, u.l_name, u.email, u.NIC, u.address, 
-                       u.contact, u.DOB, u.role, l.lecturer_id
+                       u.contact, u.DOB, u.role,u.password,u.status, l.lecturer_id
                 FROM user u
                 INNER JOIN lecturer l ON u.user_id = l.user_Id
                 WHERE u.role = 'LECTURER'
@@ -223,6 +279,8 @@ public class AdminDAOImpl implements AdminDAO {
                 userDTO.setContact(resultSet.getString("contact"));
                 userDTO.setDob(resultSet.getDate("DOB").toLocalDate());
                 userDTO.setRole(resultSet.getString("role"));
+                userDTO.setPassword(resultSet.getString("password"));
+                userDTO.setStatus(resultSet.getString("status"));
                 userDTO.setLecturerId(resultSet.getInt("lecturer_id"));
                 userDTO.setPassword(null); // Don't return password for security
 

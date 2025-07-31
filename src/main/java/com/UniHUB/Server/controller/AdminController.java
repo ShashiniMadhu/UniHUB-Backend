@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:3001", "http://localhost:5173"}) // Updated CORS
+@CrossOrigin(origins = {"http://localhost:5173"}) // Updated CORS
 @RestController
 @RequestMapping("/admin") // Updated to match your frontend API call
 public class AdminController {
@@ -33,6 +33,16 @@ public class AdminController {
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return new ResponseEntity<>("Error creating user: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/get_users")
+    public ResponseEntity<?> getAllUsers(){
+        try{
+            final List<UserDTO> users = adminService.getAllUsers();
+            return ResponseEntity.ok(users);
+        }catch(Exception e){
+            return new ResponseEntity<>("Error view users: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
