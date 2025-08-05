@@ -246,6 +246,12 @@ public class LecturerController {
         return ResponseEntity.ok(notifications);
     }
 
+//    @PutMapping("/{lecturerId}/notification/{notificationId}/read")
+//    public ResponseEntity<NotificationDTO> markNotificationAsRead(
+//            @PathVariable Integer lecturerId,
+//            @PathVariable Integer notificationId) {
+//
+//    }
     @GetMapping("/site/announcements")
     public ResponseEntity<List<SiteAnnouncementDTO>> getAllSiteAnnouncements() {
         List<SiteAnnouncementDTO> dtos = lecturerService.getAllSiteAnnouncements();
