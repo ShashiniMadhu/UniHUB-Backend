@@ -20,5 +20,6 @@ public interface LecturerService {
     AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId);
     AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId);
     List<SiteAnnouncementDTO> getAllSiteAnnouncements();
-
+    List<LecturerQueryDTO> getQueriesForLecturer(Integer lecturerId);
+    QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO);
 }

@@ -125,6 +125,16 @@ public class LecturerServiceImpl implements LecturerService {
         return lecturerDAO.findAllSiteAnnouncements();
     }
 
+    @Override
+    public List<LecturerQueryDTO> getQueriesForLecturer(Integer lecturerId) {
+        return lecturerDAO.findQueriesByLecturerId(lecturerId);
+    }
+    @Override
+    public QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO) {
+        return lecturerDAO.saveQueryReply(queryReplyDTO);
+    }
+
+
 
 
 

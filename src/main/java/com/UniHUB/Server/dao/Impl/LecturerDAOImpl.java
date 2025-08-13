@@ -531,6 +531,76 @@ public class LecturerDAOImpl implements LecturerDAO {
         return list;
     }
 
+    @Override
+    public List<LecturerQueryDTO> findQueriesByLecturerId(Integer lecturerId) {
+        String sql = """
+            SELECT 
+                q.query_id,
+                q.lecturer_id,
+                q.student_id,
+                q.question
+            FROM query q
+            WHERE q.lecturer_id = ?
+            ORDER BY q.query_id DESC
+            """;
+
+        List<LecturerQueryDTO> list = new ArrayList<>();
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, lecturerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    LecturerQueryDTO dto = new LecturerQueryDTO(
+                            rs.getInt("query_id"),
+                            rs.getInt("lecturer_id"),
+                            rs.getInt("student_id"),
+                            rs.getString("question")
+                    );
+                    list.add(dto);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching queries for lecturer", e);
+        }
+        return list;
+    }
+
+    @Override
+    public QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO) {
+        String sql = """
+            INSERT INTO query_reply (query_id, reply)
+            VALUES (?, ?)
+        """;
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setInt(1, queryReplyDTO.getQueryId());
+            ps.setString(2, queryReplyDTO.getReply());
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating query reply failed, no rows affected.");
+            }
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    queryReplyDTO.setReplyId(rs.getInt(1));
+                } else {
+                    throw new SQLException("Creating query reply failed, no ID obtained.");
+                }
+            }
+
+            return queryReplyDTO;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while saving query reply: " + e.getMessage(), e);
+        }
+    }
+
+
+
 
 
 
