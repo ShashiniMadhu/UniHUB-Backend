@@ -245,18 +245,36 @@ public class LecturerController {
                 notificationService.getNotificationsByUserId(lecturerId);
         return ResponseEntity.ok(notifications);
     }
-
-//    @PutMapping("/{lecturerId}/notification/{notificationId}/read")
-//    public ResponseEntity<NotificationDTO> markNotificationAsRead(
-//            @PathVariable Integer lecturerId,
-//            @PathVariable Integer notificationId) {
-//
-//    }
     @GetMapping("/site/announcements")
     public ResponseEntity<List<SiteAnnouncementDTO>> getAllSiteAnnouncements() {
         List<SiteAnnouncementDTO> dtos = lecturerService.getAllSiteAnnouncements();
         return ResponseEntity.ok(dtos);
     }
+
+    @GetMapping("/{lecturerId}/queries")
+    public ResponseEntity<List<LecturerQueryDTO>> getQueries(
+            @PathVariable Integer lecturerId) {
+        List<LecturerQueryDTO> queries = lecturerService.getQueriesForLecturer(lecturerId);
+        return ResponseEntity.ok(queries);
+    }
+    @PostMapping("/{queryId}/reply")
+    public ResponseEntity<?> replyToQuery(
+            @PathVariable Integer queryId,
+            @RequestBody QueryReplyDTO queryReplyDTO) {
+        try {
+            // Set the query ID from the URL path
+            queryReplyDTO.setQueryId(queryId);
+            QueryReplyDTO saved = lecturerService.saveQueryReply(queryReplyDTO);
+            return ResponseEntity.ok(saved);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Error saving query reply: " + e.getMessage());
+        }
+    }
+
+
 
 
 }
