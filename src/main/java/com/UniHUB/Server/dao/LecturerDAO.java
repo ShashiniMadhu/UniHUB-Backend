@@ -22,6 +22,9 @@ public interface LecturerDAO {
     AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId);
     List<NotificationDTO> findByUserId(Integer userId);
     List<SiteAnnouncementDTO> findAllSiteAnnouncements();
+    List<LecturerQueryDTO> findQueriesByLecturerId(Integer lecturerId);
+    QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO);
+
 
 
 
