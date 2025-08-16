@@ -15,4 +15,7 @@ public class UserResponseDTO {
     private String role;
     private String token;
 
+    private Integer studentId;   // null if not a student
+    private Integer lecturerId;  // null if not a lecturer
+
 }
