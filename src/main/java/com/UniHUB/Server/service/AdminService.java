@@ -14,6 +14,8 @@ public interface AdminService {
      */
     UserDTO createUser(UserDTO userDTO);
 
+    List<UserDTO> getAllUsers();
+
     /**
      * view all students details
      * @return

@@ -8,6 +8,8 @@ import java.util.List;
 public interface AdminDAO {
     UserDTO createUser(UserDTO userDTO);
 
+    List<UserDTO> getAllUsers();
+
     List<UserDTO> viewStudents();
 
     List<UserDTO> viewLecturers();
