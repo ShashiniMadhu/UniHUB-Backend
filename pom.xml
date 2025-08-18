@@ -44,6 +44,7 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -73,24 +74,22 @@
 			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
 
-		<!--dependency for JWT token-->
+		<!-- JWT dependencies - Use ONLY 0.11.5 to avoid conflicts -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
-			<version>0.12.6</version>
+			<version>0.11.5</version>
 		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
-			<version>0.12.6</version>
+			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-jackson</artifactId>
-			<version>0.12.6</version>
+			<version>0.11.5</version>
 			<scope>runtime</scope>
 		</dependency>
 
