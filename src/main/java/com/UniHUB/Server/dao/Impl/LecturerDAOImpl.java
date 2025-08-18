@@ -800,6 +800,66 @@ public class LecturerDAOImpl implements LecturerDAO {
         }
     }
 
+    @Override
+    public Integer findUserIdByLecturerId(Integer lecturerId) {
+        String sql = "SELECT user_id FROM lecturer WHERE lecturer_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, lecturerId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("user_id");
+                }
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding user ID for lecturer ID: " + lecturerId, e);
+        }
+    }
+
+    @Override
+    public UserDTO findUserDetailsById(Integer userId) {
+        String sql = "SELECT user_id, f_name, l_name, email, NIC, address, contact, DOB, role, password, status FROM user WHERE user_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    UserDTO user = new UserDTO();
+                    user.setUserId(resultSet.getInt("user_id"));
+                    user.setFName(resultSet.getString("f_name"));
+                    user.setLName(resultSet.getString("l_name"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setNic(resultSet.getString("NIC"));
+                    user.setAddress(resultSet.getString("address"));
+                    user.setContact(resultSet.getString("contact"));
+
+                    Date dobDate = resultSet.getDate("DOB");
+                    if (dobDate != null) {
+                        user.setDob(dobDate.toLocalDate());
+                    }
+
+                    user.setRole(resultSet.getString("role"));
+                    user.setPassword(resultSet.getString("password"));
+                    user.setStatus(resultSet.getString("status"));
+
+                    return user;
+                }
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding user details for user ID: " + userId, e);
+        }
+    }
+
 
 
 

@@ -25,5 +25,6 @@ public interface LecturerService {
     AnnouncementDTO editAnnouncement(AnnouncementDTO announcementDTO, boolean preserveExistingAttachment);
     AssignmentsDTO editAssignment(AssignmentsDTO assignmentsDTO, boolean preserveExistingAttachment);
     ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment);
+    UserDTO getLecturerDetails(Integer lecturerId);
 
 }
