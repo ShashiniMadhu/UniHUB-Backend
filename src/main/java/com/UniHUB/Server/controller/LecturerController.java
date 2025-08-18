@@ -274,6 +274,11 @@ public class LecturerController {
         }
     }
 
+    @GetMapping("/appointments/{lecturerId}")
+    public List<AppointmentDTO> getAllAppointmentsByLecturerId(@PathVariable int lecturerId) {
+        return lecturerService.getAllAppointmentsByLecturerId(lecturerId);
+    }
+
 
 
 

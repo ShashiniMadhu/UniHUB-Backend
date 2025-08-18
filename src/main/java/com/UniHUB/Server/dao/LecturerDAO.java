@@ -25,6 +25,9 @@ public interface LecturerDAO {
     List<LecturerQueryDTO> findQueriesByLecturerId(Integer lecturerId);
     QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO);
 
+    List<AppointmentDTO> getAllAppointmentsByLecturerId(Integer lecturerId);
+    AppointmentDTO setAppointment(AppointmentDTO appointmentDTO);
+
 
 
 

@@ -22,4 +22,7 @@ public interface LecturerService {
     List<SiteAnnouncementDTO> getAllSiteAnnouncements();
     List<LecturerQueryDTO> getQueriesForLecturer(Integer lecturerId);
     QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO);
+
+    List<AppointmentDTO> getAllAppointmentsByLecturerId(Integer lecturerId);
+    AppointmentDTO setAppointment(AppointmentDTO appointmentDTO);
 }
