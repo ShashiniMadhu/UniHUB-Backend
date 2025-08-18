@@ -483,32 +483,6 @@ public class LecturerDAOImpl implements LecturerDAO {
     }
 
     @Override
-    public List<NotificationDTO> findByUserId(Integer userId) {
-        List<NotificationDTO> list = new ArrayList<>();
-        String sql = "SELECT notification_id, user_id, message, is_read, is_delete "
-                + "FROM notification WHERE user_id=? AND is_delete=FALSE";
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    NotificationDTO dto = new NotificationDTO();
-                    dto.setNotificationId(rs.getInt("notification_id"));
-                    dto.setUserId(rs.getInt("user_id"));
-                    dto.setMessage(rs.getString("message"));
-                    dto.setIsRead(rs.getBoolean("is_read"));
-                    dto.setIsDelete(rs.getBoolean("is_delete"));
-                    list.add(dto);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error fetching notifications", e);
-        }
-        return list;
-    }
-
-
-    @Override
     public List<SiteAnnouncementDTO> findAllSiteAnnouncements() {
         List<SiteAnnouncementDTO> list = new ArrayList<>();
         String sql = "SELECT announcement_id, topic, description,date,time,created_at FROM site_announcements ORDER BY created_at DESC";
@@ -858,6 +832,37 @@ public class LecturerDAOImpl implements LecturerDAO {
         } catch (SQLException e) {
             throw new RuntimeException("Error finding user details for user ID: " + userId, e);
         }
+    }
+    @Override
+    public List<NotificationDTO> findNotificationsByUserId(Integer userId) {
+        List<NotificationDTO> notifications = new ArrayList<>();
+        String sql = "SELECT notification_id, user_id, message, is_read, is_delete " +
+                "FROM notification WHERE user_id = ? AND is_delete = FALSE " +
+                "ORDER BY notification_id DESC";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    NotificationDTO notification = new NotificationDTO();
+                    notification.setNotificationId(resultSet.getInt("notification_id"));
+                    notification.setUserId(resultSet.getInt("user_id"));
+                    notification.setMessage(resultSet.getString("message"));
+                    notification.setIsRead(resultSet.getBoolean("is_read"));
+                    notification.setIsDelete(resultSet.getBoolean("is_delete"));
+
+                    notifications.add(notification);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching notifications for user ID: " + userId, e);
+        }
+
+        return notifications;
     }
 
 
