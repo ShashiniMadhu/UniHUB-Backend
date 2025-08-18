@@ -1,6 +1,7 @@
 package com.UniHUB.Server.service.Impl;
 
 import com.UniHUB.Server.dao.AdminDAO;
+import com.UniHUB.Server.dto.CourseFullDTO;
 import com.UniHUB.Server.dto.SiteAnnouncementDTO;
 import com.UniHUB.Server.dto.UserDTO;
 import com.UniHUB.Server.service.AdminService;
@@ -162,4 +163,27 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("Failed to reactivate user: " + e.getMessage());
         }
     }
+
+    @Override
+    public List<UserDTO> getAvailableLecturers() {
+        return adminDAO.getAvailableLecturers();
+    }
+
+    @Override
+    public CourseFullDTO createCourse(CourseFullDTO courseFullDTO) {
+        try {
+            // Create course
+            CourseFullDTO course = adminDAO.createCourse(courseFullDTO);
+
+            // Assign lecturer if provided
+            if (courseFullDTO.getLecturerId() != null) {
+                adminDAO.assignLecturerToCourse(courseFullDTO.getLecturerId(), course.getCourseId());
+            }
+
+            return course;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create course: " + e.getMessage());
+        }
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.UniHUB.Server.dao.Impl;
 
 import com.UniHUB.Server.dao.AdminDAO;
+import com.UniHUB.Server.dto.CourseFullDTO;
 import com.UniHUB.Server.dto.SiteAnnouncementDTO;
 import com.UniHUB.Server.dto.UserDTO;
 import com.UniHUB.Server.util.DatabaseConnection;
@@ -700,4 +701,110 @@ public class AdminDAOImpl implements AdminDAO {
             closeResources(resultSet, statement, connection);
         }
     }
+
+    @Override
+    public CourseFullDTO createCourse(CourseFullDTO courseFullDTO) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet generatedKeys = null;
+
+        try {
+            connection = databaseConnection.getConnection();
+
+            String sql = """
+            INSERT INTO course (name, credits, year, semester)
+            VALUES (?, ?, ?, ?)
+            """;
+
+            statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+            statement.setString(1, courseFullDTO.getName());
+            statement.setInt(2, courseFullDTO.getCredits());
+            statement.setInt(3, courseFullDTO.getYear());
+            statement.setInt(4, courseFullDTO.getSemester());
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                generatedKeys = statement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    int courseId = generatedKeys.getInt(1);
+                    courseFullDTO.setCourseId(courseId);
+                    return courseFullDTO;
+                }
+            }
+
+            throw new RuntimeException("Failed to create course - no rows affected");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while creating course: " + e.getMessage(), e);
+        } finally {
+            closeResources(generatedKeys, statement, connection);
+        }
+    }
+
+    @Override
+    public List<UserDTO> getAvailableLecturers() {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        ResultSet resultSet = null;
+        List<UserDTO> availableLecturers = new ArrayList<>();
+
+        try {
+            connection = databaseConnection.getConnection();
+
+            String sql = """
+            SELECT u.user_id, u.f_name, u.l_name, l.lecturer_id
+            FROM user u
+            INNER JOIN lecturer l ON u.user_id = l.user_Id
+            WHERE u.role = 'LECTURER' AND u.status = 'ACTIVE'
+            AND l.lecturer_id NOT IN (SELECT lecturer_id FROM lecturer_course)
+            """;
+
+            statement = connection.prepareStatement(sql);
+            resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUserId(resultSet.getInt("user_id"));
+                String fullName = resultSet.getString("f_name") + " " + resultSet.getString("l_name");
+                userDTO.setFName(fullName);
+                userDTO.setLecturerId(resultSet.getInt("lecturer_id"));
+                availableLecturers.add(userDTO);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while retrieving available lecturers: " + e.getMessage());
+        } finally {
+            closeResources(resultSet, statement, connection);
+        }
+
+        return availableLecturers;
+    }
+
+    @Override
+    public void assignLecturerToCourse(int lecturerId, int courseId) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+
+        try {
+            connection = databaseConnection.getConnection();
+
+            String sql = "INSERT INTO lecturer_course (lecturer_id, course_id) VALUES (?, ?)";
+            statement = connection.prepareStatement(sql);
+            statement.setInt(1, lecturerId);
+            statement.setInt(2, courseId);
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Failed to assign lecturer to course");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Database error while assigning lecturer to course: " + e.getMessage());
+        } finally {
+            closeResources(statement, connection);
+        }
+    }
+
 }
