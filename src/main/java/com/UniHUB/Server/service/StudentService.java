@@ -1,5 +1,8 @@
 package com.UniHUB.Server.service;
 
+
+import com.UniHUB.Server.dto.FeedbackDTO;
+import com.UniHUB.Server.dto.QueryDTO;
 import com.UniHUB.Server.dto.AppointmentDTO;
 import com.UniHUB.Server.dto.LecturerDTO;
 
@@ -13,8 +16,13 @@ public interface StudentService {
     public boolean isLecturerAvailable(Integer lecturerId, LocalDate date, LocalTime time);
 
 
+    void addFeedback(FeedbackDTO feedback);
+    boolean updateQuery(QueryDTO queryDTO);
+
+
     List<AppointmentDTO> getAllAppointmentsByStudentId(Integer studentId);
     AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO);
     String deleteAppointment(Integer appointmentId);
     List<LecturerDTO> getAllLecturers();
+
 }

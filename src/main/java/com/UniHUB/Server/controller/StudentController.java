@@ -7,6 +7,7 @@ import com.UniHUB.Server.dto.QueryDTO;
 import com.UniHUB.Server.dto.CourseDTO;
 import com.UniHUB.Server.dto.ResourceDTO;
 import com.UniHUB.Server.dto.FeedbackDTO;
+import com.UniHUB.Server.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,9 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class StudentController {
     private final StudentDAO studentDAO;
+
+    @Autowired
+    private StudentService studentService;
 
     @Autowired
     public StudentController(StudentDAO studentDAO) {
@@ -127,6 +131,20 @@ public class StudentController {
             return studentDAO.getQueriesByStudentIdAndCourseId(studentId, courseId);
         } else {
             return studentDAO.getQueriesByStudentId(studentId);
+        }
+    }
+
+    @PutMapping("/update/query")
+    public ResponseEntity<String> updateQuery(@RequestBody QueryDTO query) {
+        try {
+            boolean updated = studentService.updateQuery(query);
+            if (updated) {
+                return ResponseEntity.ok("Query updated successfully");
+            } else {
+                return ResponseEntity.badRequest().body("Query update failed");
+            }
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }

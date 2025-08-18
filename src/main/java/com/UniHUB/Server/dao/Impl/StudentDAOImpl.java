@@ -25,7 +25,7 @@ public class StudentDAOImpl implements StudentDAO {
     // Implementation for student queries
     @Override
     public QueryDTO addQuery(QueryDTO query) {
-        String sql = "INSERT INTO query (course_Id, student_Id, category, Priority, question) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO query (course_Id, student_Id, category, priority, question) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, query.getCourseId());
@@ -59,7 +59,8 @@ public class StudentDAOImpl implements StudentDAO {
                     rs.getInt("student_Id"),
                     rs.getString("category"),
                     rs.getString("Priority"),
-                    rs.getString("question")
+                    rs.getString("question"),
+                        rs.getTimestamp("created_at")
                 );
                 queries.add(query);
             }
@@ -92,6 +93,7 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<AppointmentDTO> getAllAppointmentsByStudentId(Integer studentId) {
         List<AppointmentDTO> appointments = new ArrayList<>();
+
         String sql = "SELECT * FROM appointment WHERE student_Id = ?";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -99,6 +101,7 @@ public class StudentDAOImpl implements StudentDAO {
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 AppointmentDTO appointment = new AppointmentDTO(
+
                         rs.getInt("appointment_Id"),
                         rs.getInt("lecturer_Id"),
                         rs.getInt("student_Id"),
@@ -121,8 +124,10 @@ public class StudentDAOImpl implements StudentDAO {
     public AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO) {
         String sql = """
         UPDATE appointment
+
         SET lecturer_Id=?, purpose=?, date=?, time=?
         WHERE status='PENDING' AND appointment_Id=? AND student_Id=?
+
         """;
 
         try (Connection conn = databaseConnection.getConnection();
@@ -132,6 +137,7 @@ public class StudentDAOImpl implements StudentDAO {
             ps.setString(2, appointmentDTO.getPurpose());
             ps.setDate(3, Date.valueOf(appointmentDTO.getDate()));
             ps.setTime(4, Time.valueOf(appointmentDTO.getTime()));
+
 
             ps.setInt(5, appointmentDTO.getAppointmentId());
 
@@ -157,6 +163,7 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public String deleteAppointment(Integer appointmentId) {
+
         String checkSql = "SELECT status FROM appointment WHERE appointment_Id = ?";
         String deleteSql = "DELETE FROM appointment WHERE appointment_Id = ?";
 
@@ -193,9 +200,11 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<LecturerDTO> getAllLecturers() {
         List<LecturerDTO> lecturers = new ArrayList<>();
+
         String sql = "SELECT l.lecturer_Id, u.user_Id, u.f_name, u.l_name, u.email " +
                 "FROM lecturer l " +
                 "INNER JOIN user u ON l.user_Id = u.user_Id";
+
 
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -203,11 +212,13 @@ public class StudentDAOImpl implements StudentDAO {
 
             while (rs.next()) {
                 LecturerDTO lecturer = new LecturerDTO();
+
                 lecturer.setLecturerId(rs.getInt("lecturer_Id"));
                 lecturer.setUserId(rs.getInt("user_Id"));
 
                 UserDTO user = new UserDTO();
                 user.setUserId(rs.getInt("user_Id"));
+
                 user.setFName(rs.getString("f_name") + " " + rs.getString("l_name"));
                 user.setEmail(rs.getString("email"));
 
@@ -233,7 +244,9 @@ public class StudentDAOImpl implements StudentDAO {
             throw new RuntimeException("Lecturer is not available at this time.");
         }
 
+
         String sql = "INSERT INTO appointment (lecturer_Id, student_Id, purpose, date, time, status) VALUES (?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -280,6 +293,7 @@ public class StudentDAOImpl implements StudentDAO {
                 query.setCategory(rs.getString("category"));
                 query.setPriority(rs.getString("Priority"));
                 query.setQuestion(rs.getString("question"));
+                query.setCreatedAt(rs.getTimestamp("created_at"));
                 queries.add(query);
             }
         } catch (SQLException e) {
@@ -357,7 +371,7 @@ public class StudentDAOImpl implements StudentDAO {
                     rs.getInt("feedback_id"),
                     rs.getInt("student_id"),
                     rs.getInt("course_id"),
-                    rs.getInt("lecturer_id"),
+
                     rs.getString("review"),
                     rs.getInt("rate")
                 ));
@@ -370,17 +384,49 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public void addFeedback(FeedbackDTO feedback) {
-        String sql = "INSERT INTO feedback (student_id, course_id, lecturer_id, review, rate) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO feedback (student_Id, course_Id, review, rate) VALUES (?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, feedback.getStudentId());
             stmt.setInt(2, feedback.getCourseId());
-            stmt.setInt(3, feedback.getLecturerId());
-            stmt.setString(4, feedback.getReview());
-            stmt.setInt(5, feedback.getRate());
+
+            stmt.setString(3, feedback.getReview());
+            stmt.setInt(4, feedback.getRate());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean updateQuery(QueryDTO query) throws SQLException {
+        String sql = "UPDATE query SET category = ?, priority = ?, question = ? WHERE query_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, query.getCategory());
+            stmt.setString(2, query.getPriority());
+            stmt.setString(3, query.getQuestion());
+            stmt.setInt(4, query.getQueryId());
+
+            int updated = stmt.executeUpdate();
+            return updated > 0;
+        }
+    }
+
+    @Override
+    public Timestamp getQueryCreatedTime(int queryId) throws SQLException {
+        String sql = "SELECT created_at FROM query WHERE query_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, queryId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getTimestamp("created_at");
+            } else {
+                return null;
+            }
         }
     }
 

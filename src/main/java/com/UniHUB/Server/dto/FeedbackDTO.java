@@ -20,8 +20,7 @@ public class FeedbackDTO {
     private Integer studentId;
     @JsonProperty("course_id")
     private Integer courseId;
-    @JsonProperty("lecturer_id")
-    private Integer lecturerId;
+
 
     private String review;
     private Integer rate;

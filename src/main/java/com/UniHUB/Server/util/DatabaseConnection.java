@@ -9,6 +9,11 @@ import java.sql.SQLException;
 @Component
 public class DatabaseConnection {
 
+    private final String url = "jdbc:mysql://localhost:3306/unihub";
+    private final String username = "root";
+    private final String password = "";
+
+
     @Value("${spring.datasource.url}")
     private String url;
 
@@ -20,6 +25,7 @@ public class DatabaseConnection {
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
+
 
     public Connection getConnection() {
         Connection connection = null;
