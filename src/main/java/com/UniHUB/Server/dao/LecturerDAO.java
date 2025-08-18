@@ -24,8 +24,11 @@ public interface LecturerDAO {
     List<SiteAnnouncementDTO> findAllSiteAnnouncements();
     List<LecturerQueryDTO> findQueriesByLecturerId(Integer lecturerId);
     QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO);
-
-
+    AnnouncementDTO editAnnouncement(AnnouncementDTO announcementDTO, boolean preserveExistingAttachment);
+    AssignmentsDTO editAssignment(AssignmentsDTO assignmentsDTO, boolean preserveExistingAttachment);
+    ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment);
+    Integer findUserIdByLecturerId(Integer lecturerId);
+    UserDTO findUserDetailsById(Integer userId);
 
 
 }
