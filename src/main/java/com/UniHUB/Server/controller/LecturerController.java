@@ -238,14 +238,7 @@ public class LecturerController {
         return ResponseEntity.ok(rejected);
     }
 
-    @GetMapping("/{lecturerId}/notifications")
-    public ResponseEntity<List<NotificationDTO>> getNotifications(
-            @PathVariable Integer lecturerId) {
 
-        List<NotificationDTO> notifications =
-                notificationService.getNotificationsByUserId(lecturerId);
-        return ResponseEntity.ok(notifications);
-    }
     @GetMapping("/site/announcements")
     public ResponseEntity<List<SiteAnnouncementDTO>> getAllSiteAnnouncements() {
         List<SiteAnnouncementDTO> dtos = lecturerService.getAllSiteAnnouncements();
@@ -438,6 +431,19 @@ public class LecturerController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/{lecturerId}/notifications")
+    public ResponseEntity<List<NotificationDTO>> getNotifications(@PathVariable Integer lecturerId) {
+        try {
+            List<NotificationDTO> notifications = notificationService.getNotificationsByLecturerId(lecturerId);
+            return ResponseEntity.ok(notifications);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
 
 
 
