@@ -1,12 +1,7 @@
 package com.UniHUB.Server.controller;
 
 import com.UniHUB.Server.dao.StudentDAO;
-import com.UniHUB.Server.dto.AppointmentDTO;
-import com.UniHUB.Server.dto.LecturerDTO;
-import com.UniHUB.Server.dto.QueryDTO;
-import com.UniHUB.Server.dto.CourseDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
-import com.UniHUB.Server.dto.FeedbackDTO;
+import com.UniHUB.Server.dto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
@@ -129,5 +125,11 @@ public class StudentController {
             return studentDAO.getQueriesByStudentId(studentId);
         }
     }
+
+    @GetMapping("/pass-papers")
+    public Map<Integer, List<PassPaperDTO>> getAllPassPapersGroupedByYear() {
+        return studentDAO.getAllPassPapersGroupedByYear();
+    }
+
 }
 

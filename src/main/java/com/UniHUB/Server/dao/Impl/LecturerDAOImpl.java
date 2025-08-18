@@ -865,20 +865,4 @@ public class LecturerDAOImpl implements LecturerDAO {
         return notifications;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -1,13 +1,7 @@
 package com.UniHUB.Server.dao.Impl;
 
 import com.UniHUB.Server.dao.StudentDAO;
-import com.UniHUB.Server.dto.AppointmentDTO;
-import com.UniHUB.Server.dto.LecturerDTO;
-import com.UniHUB.Server.dto.QueryDTO;
-import com.UniHUB.Server.dto.UserDTO;
-import com.UniHUB.Server.dto.CourseDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
-import com.UniHUB.Server.dto.FeedbackDTO;
+import com.UniHUB.Server.dto.*;
 import com.UniHUB.Server.util.DatabaseConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -15,7 +9,9 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class StudentDAOImpl implements StudentDAO {
@@ -384,6 +380,37 @@ public class StudentDAOImpl implements StudentDAO {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public Map<Integer, List<PassPaperDTO>> getAllPassPapersGroupedByYear() {
+        Map<Integer, List<PassPaperDTO>> passPapersByYear = new LinkedHashMap<>();
+        String sql = "SELECT * FROM pass_paper ORDER BY year DESC, paper_id";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                PassPaperDTO passPaper = new PassPaperDTO(
+                        rs.getInt("paper_id"),
+                        rs.getString("link"),
+                        rs.getString("attachment"),
+                        rs.getInt("year")
+                );
+
+                int year = passPaper.getYear();
+                passPapersByYear.computeIfAbsent(year, k -> new ArrayList<>()).add(passPaper);
+            }
+
+        } catch (SQLException e) {
+            System.err.println("Error fetching pass papers: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching pass papers grouped by year", e);
+        }
+
+        return passPapersByYear;
+    }
+
 
     // QueryDAO is deprecated and should be removed. No references to QueryDAO should remain in the codebase.
 }

@@ -269,6 +269,7 @@ public class LecturerController {
     }
 
 
+
     @PutMapping(value = "/{lecturerId}/announcement/{announcementId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> editAnnouncement(
             @PathVariable Integer lecturerId,
@@ -443,6 +444,8 @@ public class LecturerController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+
 
 
 

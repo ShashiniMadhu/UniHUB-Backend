@@ -166,16 +166,4 @@ public class LecturerServiceImpl implements LecturerService {
         return userDetails;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
 }
