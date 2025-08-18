@@ -147,6 +147,25 @@ public class LecturerServiceImpl implements LecturerService {
     public ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment) {
         return lecturerDAO.editResource(resourceDTO, preserveExistingAttachment);
     }
+    @Override
+    public UserDTO getLecturerDetails(Integer lecturerId) {
+        // First get the userId associated with the lecturerId
+        Integer userId = lecturerDAO.findUserIdByLecturerId(lecturerId);
+
+        if (userId == null) {
+            throw new RuntimeException("Lecturer not found with id " + lecturerId);
+        }
+
+        // Then get the user details using the userId
+        UserDTO userDetails = lecturerDAO.findUserDetailsById(userId);
+
+        if (userDetails == null) {
+            throw new RuntimeException("User details not found for lecturer id " + lecturerId);
+        }
+
+        return userDetails;
+    }
+
 
 
 

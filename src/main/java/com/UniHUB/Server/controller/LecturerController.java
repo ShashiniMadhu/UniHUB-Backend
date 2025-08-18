@@ -429,6 +429,15 @@ public class LecturerController {
         }
     }
 
+    @GetMapping("/{lecturerId}/details")
+    public ResponseEntity<UserDTO> getLecturerDetails(@PathVariable Integer lecturerId) {
+        try {
+            UserDTO lecturerDetails = lecturerService.getLecturerDetails(lecturerId);
+            return ResponseEntity.ok(lecturerDetails);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
 
 
