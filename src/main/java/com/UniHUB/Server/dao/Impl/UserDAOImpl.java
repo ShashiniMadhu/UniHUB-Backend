@@ -26,4 +26,26 @@ public class UserDAOImpl implements UserDAO {
             return Optional.empty();
         }
     }
+
+    @Override
+    public Integer findStudentIdByUserId(Integer userId) {
+        String sql = "SELECT s.student_id FROM student s " +
+                "INNER JOIN user u ON s.user_id=u.user_id WHERE u.user_id=?";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        } catch (EmptyResultDataAccessException e) {
+            return null; // No student found for this user
+        }
+    }
+
+    @Override
+    public Integer findLecturerIdByUserId(Integer userId) {
+        String sql= "SELECT l.lecturer_id FROM lecturer l " +
+                "INNER JOIN user u ON l.user_id=u.user_id WHERE u.user_id=?";
+        try{
+            return jdbcTemplate.queryForObject(sql,Integer.class,userId);
+        }catch(EmptyResultDataAccessException e){
+            return null;
+        }
+    }
 }
