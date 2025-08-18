@@ -169,7 +169,7 @@ public class LecturerDAOImpl implements LecturerDAO {
                             rs.getInt("feedback_id"),
                             rs.getInt("student_id"),
                             rs.getInt("course_id"),
-                            rs.getInt("lecturer_id"),
+
                             rs.getString("review"),
                             rs.getInt("rate")
                     );
