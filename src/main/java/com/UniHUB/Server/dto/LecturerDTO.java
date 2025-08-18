@@ -3,12 +3,10 @@ package com.UniHUB.Server.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class LecturerDTO {
@@ -16,4 +14,5 @@ public class LecturerDTO {
     private int lecturerId;
     @JsonProperty("user_id")
     private int userId;
+    private UserDTO userDTO;
 }

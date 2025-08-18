@@ -866,14 +866,56 @@ public class LecturerDAOImpl implements LecturerDAO {
 
 
 
+    @Override
+    public List<AppointmentDTO> getAllAppointmentsByLecturerId(Integer lecturerId) {
+        List<AppointmentDTO> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointment WHERE student_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, lecturerId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                AppointmentDTO appointment = new AppointmentDTO(
+                        rs.getInt("appointment_id"),
+                        rs.getInt("lecturer_id"),
+                        rs.getInt("student_id"),
+                        rs.getString("purpose"),
+                        rs.getDate("date").toLocalDate(),       // Convert to LocalDate
+                        rs.getTime("time").toLocalTime(),       // Convert to LocalTime
+                        rs.getString("status"),                 // You missed status in your example
+                        rs.getString("location"),
+                        rs.getInt("duration")
+                );
 
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
 
+    @Override
+    public AppointmentDTO setAppointment( AppointmentDTO appointmentDTO) {
+        String sql = "UPDATE appointment SET location = ?, status= ?WHERE studentId = ? AND appointmentId=?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
+            ps.setString(1, appointmentDTO.getLocation());
+            ps.setString(2, appointmentDTO.getStatus());
+            ps.setInt(3, appointmentDTO.getStudentId());
+            ps.setInt(4, appointmentDTO.getAppointmentId());
 
-
-
-
-
+            int updated = ps.executeUpdate();
+            if (updated == 0) {
+                throw new SQLException("No appointments found with appointment_id and student_id " +
+                        appointmentDTO.getAppointmentId()+appointmentDTO.getStudentId());
+            }
+            return appointmentDTO;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error setting appointment", e);
+        }
+    }
 
 
 }
