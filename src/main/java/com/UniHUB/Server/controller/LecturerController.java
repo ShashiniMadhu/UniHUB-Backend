@@ -1,5 +1,6 @@
 package com.UniHUB.Server.controller;
 
+import com.UniHUB.Server.dao.LecturerDAO;
 import com.UniHUB.Server.dto.*;
 import com.UniHUB.Server.service.LecturerService;
 import com.UniHUB.Server.service.NotificationService;
@@ -273,6 +274,171 @@ public class LecturerController {
                     .body("Error saving query reply: " + e.getMessage());
         }
     }
+
+
+    @PutMapping(value = "/{lecturerId}/announcement/{announcementId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editAnnouncement(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer announcementId,
+            @RequestParam("content") String content,
+            @RequestParam(value = "link", required = false) String link,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment,
+            @RequestParam(value = "removeAttachment", required = false, defaultValue = "false") Boolean removeAttachment
+    ) {
+        try {
+            String imageUrl = null;
+
+            // Handle attachment logic
+            if (attachment != null && !attachment.isEmpty()) {
+                String fileName = System.currentTimeMillis() + "_" + attachment.getOriginalFilename();
+                String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator;
+                File uploadPath = new File(uploadDir);
+                if (!uploadPath.exists()) uploadPath.mkdirs();
+
+                File dest = new File(uploadDir + fileName);
+                attachment.transferTo(dest);
+
+                imageUrl = "/uploads/" + fileName;
+            } else if (removeAttachment) {
+                // Remove existing attachment
+                imageUrl = null;
+            }
+
+            AnnouncementDTO announcementDTO = new AnnouncementDTO();
+            announcementDTO.setAnnouncementId(announcementId);
+            announcementDTO.setLecturerId(lecturerId);
+            announcementDTO.setContent(content);
+            announcementDTO.setLink(link);
+
+            if (attachment != null && !attachment.isEmpty()) {
+                announcementDTO.setAttachment(imageUrl);
+            } else if (removeAttachment) {
+                announcementDTO.setAttachment(null);
+            }
+
+            AnnouncementDTO updated = lecturerService.editAnnouncement(announcementDTO, !removeAttachment && (attachment == null || attachment.isEmpty()));
+            return ResponseEntity.ok(updated);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating announcement: " + e.getMessage());
+        }
+    }
+
+    @PutMapping(value = "/{lecturerId}/assignment/{assignmentId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editAssignment(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer assignmentId,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam("date") LocalDate date,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment,
+            @RequestParam(value = "removeAttachment", required = false, defaultValue = "false") Boolean removeAttachment
+    ) {
+        try {
+            String imageUrl = null;
+
+            // Handle attachment logic
+            if (attachment != null && !attachment.isEmpty()) {
+                // Save new attachment
+                String fileName = System.currentTimeMillis() + "_" + attachment.getOriginalFilename();
+                String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator;
+                File uploadPath = new File(uploadDir);
+                if (!uploadPath.exists()) uploadPath.mkdirs();
+
+                File dest = new File(uploadDir + fileName);
+                attachment.transferTo(dest);
+
+                imageUrl = "/uploads/" + fileName;
+            } else if (removeAttachment) {
+                // Remove existing attachment
+                imageUrl = null;
+            }
+            // If no new attachment and removeAttachment is false, keep existing attachment (handled in service)
+
+            AssignmentsDTO assignmentsDTO = new AssignmentsDTO();
+            assignmentsDTO.setAssignmentId(assignmentId);
+            assignmentsDTO.setLecturerId(lecturerId);
+            assignmentsDTO.setTitle(title);
+            assignmentsDTO.setDescription(description);
+            assignmentsDTO.setDate(date);
+
+            if (attachment != null && !attachment.isEmpty()) {
+                assignmentsDTO.setAttachment(imageUrl);
+            } else if (removeAttachment) {
+                assignmentsDTO.setAttachment(null);
+            }
+            // If neither condition is true, the service will preserve the existing attachment
+
+            AssignmentsDTO updated = lecturerService.editAssignment(assignmentsDTO, !removeAttachment && (attachment == null || attachment.isEmpty()));
+            return ResponseEntity.ok(updated);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating assignment: " + e.getMessage());
+        }
+    }
+
+    @PutMapping(value = "/{lecturerId}/resource/{resourceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> editResource(
+            @PathVariable Integer lecturerId,
+            @PathVariable Integer resourceId,
+            @RequestParam("file_name") String fileName,
+            @RequestParam(value = "attachment", required = false) MultipartFile attachment,
+            @RequestParam(value = "removeAttachment", required = false, defaultValue = "false") Boolean removeAttachment
+    ) {
+        try {
+            String imageUrl = null;
+
+            // Handle attachment logic
+            if (attachment != null && !attachment.isEmpty()) {
+                // Save new attachment
+                String fileName1 = System.currentTimeMillis() + "_" + attachment.getOriginalFilename();
+                String uploadDir = System.getProperty("user.dir") + File.separator + "uploads" + File.separator;
+                File uploadPath = new File(uploadDir);
+                if (!uploadPath.exists()) uploadPath.mkdirs();
+
+                File dest = new File(uploadDir + fileName1);
+                attachment.transferTo(dest);
+
+                imageUrl = "/uploads/" + fileName1;
+            } else if (removeAttachment) {
+                // Remove existing attachment
+                imageUrl = null;
+            }
+            // If no new attachment and removeAttachment is false, keep existing attachment (handled in service)
+
+            ResourceDTO resourceDTO = new ResourceDTO();
+            resourceDTO.setResourceId(resourceId);
+            resourceDTO.setLecturerId(lecturerId);
+            resourceDTO.setFileName(fileName);
+
+            if (attachment != null && !attachment.isEmpty()) {
+                resourceDTO.setAttachment(imageUrl);
+            } else if (removeAttachment) {
+                resourceDTO.setAttachment(null);
+            }
+            // If neither condition is true, the service will preserve the existing attachment
+
+            ResourceDTO updated = lecturerService.editResource(resourceDTO, !removeAttachment && (attachment == null || attachment.isEmpty()));
+            return ResponseEntity.ok(updated);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating resource: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{lecturerId}/details")
+    public ResponseEntity<UserDTO> getLecturerDetails(@PathVariable Integer lecturerId) {
+        try {
+            UserDTO lecturerDetails = lecturerService.getLecturerDetails(lecturerId);
+            return ResponseEntity.ok(lecturerDetails);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
 
 

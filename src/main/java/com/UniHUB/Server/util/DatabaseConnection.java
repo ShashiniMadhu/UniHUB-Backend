@@ -20,6 +20,10 @@ public class DatabaseConnection {
 
     @Value("${spring.datasource.driver-class-name}")
     private String driverClassName;
+  
+    private final String url = "jdbc:mysql://localhost:3307/unihub";
+    private final String username = "root";
+    private final String password = "";
 
     public Connection getConnection() {
         Connection connection = null;
