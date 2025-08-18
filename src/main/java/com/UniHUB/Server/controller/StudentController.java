@@ -147,5 +147,51 @@ public class StudentController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-}
 
+    // Enhanced Resource Management Endpoints
+    @GetMapping("/{studentId}/resources")
+    public ResponseEntity<List<ResourceDTO>> getStudentResources(@PathVariable int studentId) {
+        try {
+            List<ResourceDTO> resources = studentService.getResourcesByStudentId(studentId);
+            return ResponseEntity.ok(resources);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/resource/{resourceId}")
+    public ResponseEntity<ResourceDTO> getResourceDetails(@PathVariable int resourceId) {
+        try {
+            ResourceDTO resource = studentService.getResourceById(resourceId);
+            if (resource != null) {
+                return ResponseEntity.ok(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/resource/{resourceId}/download")
+    public ResponseEntity<byte[]> downloadResource(@PathVariable int resourceId) {
+        try {
+            ResourceDTO resource = studentService.getResourceById(resourceId);
+            if (resource == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            byte[] fileContent = studentService.downloadResource(resourceId);
+            if (fileContent == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok()
+                    .header("Content-Disposition", "attachment; filename=\"" + resource.getFileName() + "\"")
+                    .header("Content-Type", "application/octet-stream")
+                    .body(fileContent);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+}

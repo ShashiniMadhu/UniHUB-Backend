@@ -323,19 +323,34 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<ResourceDTO> getResourcesByCourseId(int courseId) {
         List<ResourceDTO> resources = new ArrayList<>();
-        String sql = "SELECT * FROM resource WHERE course_id = ?";
+        String sql = "SELECT r.resource_Id, r.lecturer_Id, r.course_Id, r.file_name, r.attachment, " +
+                    "CONCAT(u.f_name, ' ', u.l_name) as lecturer_name, c.name as course_name " +
+                    "FROM resource r " +
+                    "JOIN course c ON r.course_Id = c.course_Id " +
+                    "JOIN lecturer l ON r.lecturer_Id = l.lecturer_Id " +
+                    "JOIN user u ON l.user_id = u.user_id " +
+                    "WHERE r.course_Id = ?";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, courseId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                resources.add(new ResourceDTO(
-                    rs.getInt("resource_id"),
-                    rs.getInt("lecturer_id"),
-                    rs.getInt("course_id"),
-                    rs.getString("file_name"),
-                    rs.getString("attachment")
-                ));
+                ResourceDTO resource = new ResourceDTO();
+                resource.setResourceId(rs.getInt("resource_Id"));
+                resource.setLecturerId(rs.getInt("lecturer_Id"));
+                resource.setCourseId(rs.getInt("course_Id"));
+                resource.setFileName(rs.getString("file_name"));
+                resource.setAttachment(rs.getString("attachment"));
+                resource.setLecturerName(rs.getString("lecturer_name"));
+                resource.setCourseName(rs.getString("course_name"));
+
+                // Extract file type from filename
+                String fileName = rs.getString("file_name");
+                if (fileName != null && fileName.contains(".")) {
+                    resource.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toUpperCase());
+                }
+
+                resources.add(resource);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -345,7 +360,7 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public void addResource(ResourceDTO resource) {
-        String sql = "INSERT INTO resource (lecturer_id, course_id, file_name, attachment) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO resource (lecturer_Id, course_Id, file_name, attachment) VALUES (?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, resource.getLecturerId());
@@ -430,5 +445,103 @@ public class StudentDAOImpl implements StudentDAO {
         }
     }
 
-    // QueryDAO is deprecated and should be removed. No references to QueryDAO should remain in the codebase.
+    // Enhanced resource methods implementation
+    @Override
+    public List<ResourceDTO> getResourcesByStudentId(int studentId) {
+        List<ResourceDTO> resources = new ArrayList<>();
+        String sql = "SELECT r.resource_Id, r.lecturer_Id, r.course_Id, r.file_name, r.attachment, " +
+                    "CONCAT(u.f_name, ' ', u.l_name) as lecturer_name, c.name as course_name " +
+                    "FROM resource r " +
+                    "JOIN course c ON r.course_Id = c.course_Id " +
+                    "JOIN student_course sc ON c.course_Id = sc.course_Id " +
+                    "JOIN lecturer l ON r.lecturer_Id = l.lecturer_Id " +
+                    "JOIN user u ON l.user_id = u.user_id " +
+                    "WHERE sc.student_Id = ?";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                ResourceDTO resource = new ResourceDTO();
+                resource.setResourceId(rs.getInt("resource_Id"));
+                resource.setLecturerId(rs.getInt("lecturer_Id"));
+                resource.setCourseId(rs.getInt("course_Id"));
+                resource.setFileName(rs.getString("file_name"));
+                resource.setAttachment(rs.getString("attachment"));
+                resource.setLecturerName(rs.getString("lecturer_name"));
+                resource.setCourseName(rs.getString("course_name"));
+
+                // Extract file type from filename
+                String fileName = rs.getString("file_name");
+                if (fileName != null && fileName.contains(".")) {
+                    resource.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toUpperCase());
+                }
+
+                resources.add(resource);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resources;
+    }
+
+    @Override
+    public ResourceDTO getResourceById(int resourceId) {
+        String sql = "SELECT r.resource_Id, r.lecturer_Id, r.course_Id, r.file_name, r.attachment, " +
+                    "CONCAT(u.f_name, ' ', u.l_name) as lecturer_name, c.name as course_name " +
+                    "FROM resource r " +
+                    "JOIN course c ON r.course_Id = c.course_Id " +
+                    "JOIN lecturer l ON r.lecturer_Id = l.lecturer_Id " +
+                    "JOIN user u ON l.user_id = u.user_id " +
+                    "WHERE r.resource_Id = ?";
+
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, resourceId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                ResourceDTO resource = new ResourceDTO();
+                resource.setResourceId(rs.getInt("resource_Id"));
+                resource.setLecturerId(rs.getInt("lecturer_Id"));
+                resource.setCourseId(rs.getInt("course_Id"));
+                resource.setFileName(rs.getString("file_name"));
+                resource.setAttachment(rs.getString("attachment"));
+                resource.setLecturerName(rs.getString("lecturer_name"));
+                resource.setCourseName(rs.getString("course_name"));
+
+                // Extract file type from filename
+                String fileName = rs.getString("file_name");
+                if (fileName != null && fileName.contains(".")) {
+                    resource.setFileType(fileName.substring(fileName.lastIndexOf(".") + 1).toUpperCase());
+                }
+
+                return resource;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public byte[] downloadResource(int resourceId) {
+        String sql = "SELECT attachment FROM resource WHERE resource_Id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, resourceId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getBytes("attachment");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public List<ResourceDTO> getResourcesWithLecturerInfo(int studentId) {
+        return getResourcesByStudentId(studentId);
+    }
 }

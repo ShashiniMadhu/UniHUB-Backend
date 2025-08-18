@@ -5,6 +5,7 @@ import com.UniHUB.Server.dto.FeedbackDTO;
 import com.UniHUB.Server.dto.QueryDTO;
 import com.UniHUB.Server.dto.AppointmentDTO;
 import com.UniHUB.Server.dto.LecturerDTO;
+import com.UniHUB.Server.dto.ResourceDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,4 +26,8 @@ public interface StudentService {
     String deleteAppointment(Integer appointmentId);
     List<LecturerDTO> getAllLecturers();
 
+    // Resource management methods
+    List<ResourceDTO> getResourcesByStudentId(int studentId);
+    ResourceDTO getResourceById(int resourceId);
+    byte[] downloadResource(int resourceId);
 }

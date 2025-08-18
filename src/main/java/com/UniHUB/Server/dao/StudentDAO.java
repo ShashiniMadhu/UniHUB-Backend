@@ -32,6 +32,13 @@ public interface StudentDAO {
     List<CourseDTO> getCoursesByStudentId(int studentId);
     List<ResourceDTO> getResourcesByCourseId(int courseId);
     void addResource(ResourceDTO resource);
+
+    // Enhanced resource methods
+    List<ResourceDTO> getResourcesByStudentId(int studentId);
+    ResourceDTO getResourceById(int resourceId);
+    byte[] downloadResource(int resourceId);
+    List<ResourceDTO> getResourcesWithLecturerInfo(int studentId);
+
     List<FeedbackDTO> getFeedbackByCourseId(int courseId);
     void addFeedback(FeedbackDTO feedback);
     boolean updateQuery(QueryDTO query) throws SQLException;
