@@ -1,15 +1,11 @@
 package com.UniHUB.Server.dao;
 
-import com.UniHUB.Server.dto.AppointmentDTO;
-import com.UniHUB.Server.dto.LecturerDTO;
-import com.UniHUB.Server.dto.QueryDTO;
+import com.UniHUB.Server.dto.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import com.UniHUB.Server.dto.CourseDTO;
-import com.UniHUB.Server.dto.ResourceDTO;
-import com.UniHUB.Server.dto.FeedbackDTO;
 import java.util.List;
+import java.util.Map;
 
 // DAO Interface
 public interface StudentDAO {
@@ -31,6 +27,8 @@ public interface StudentDAO {
     void addResource(ResourceDTO resource);
     List<FeedbackDTO> getFeedbackByCourseId(int courseId);
     void addFeedback(FeedbackDTO feedback);
+    Map<Integer, List<PassPaperDTO>> getAllPassPapersGroupedByYear();
+
 }
 
 // Only the StudentDAO interface remains here. Implementation is now in dao/Impl/StudentDAOImpl.java

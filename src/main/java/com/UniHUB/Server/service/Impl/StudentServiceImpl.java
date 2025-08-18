@@ -5,12 +5,14 @@ import com.UniHUB.Server.dao.StudentDAO;
 import com.UniHUB.Server.dto.AnnouncementDTO;
 import com.UniHUB.Server.dto.AppointmentDTO;
 import com.UniHUB.Server.dto.LecturerDTO;
+import com.UniHUB.Server.dto.PassPaperDTO;
 import com.UniHUB.Server.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Map;
 
 public class StudentServiceImpl implements StudentService {
 
@@ -46,6 +48,11 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<LecturerDTO> getAllLecturers() {
         return studentDAO.getAllLecturers();
+    }
+
+    @Override
+    public Map<Integer, List<PassPaperDTO>> getAllPassPapersGroupedByYear() {
+        return studentDAO.getAllPassPapersGroupedByYear();
     }
 
 
