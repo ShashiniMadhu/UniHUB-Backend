@@ -20,7 +20,6 @@ public interface LecturerDAO {
     List<AppointmentDTO> findPendingAppointmentsByLecturerId(Integer lecturerId);
     AppointmentDTO takeAppointment(Integer lecturerId, Integer appointmentId);
     AppointmentDTO rejectAppointment(Integer lecturerId, Integer appointmentId);
-    List<NotificationDTO> findByUserId(Integer userId);
     List<SiteAnnouncementDTO> findAllSiteAnnouncements();
     List<LecturerQueryDTO> findQueriesByLecturerId(Integer lecturerId);
     QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO);
@@ -29,6 +28,7 @@ public interface LecturerDAO {
     ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment);
     Integer findUserIdByLecturerId(Integer lecturerId);
     UserDTO findUserDetailsById(Integer userId);
-   //test
+    List<NotificationDTO> findNotificationsByUserId(Integer userId);
+
 
 }
