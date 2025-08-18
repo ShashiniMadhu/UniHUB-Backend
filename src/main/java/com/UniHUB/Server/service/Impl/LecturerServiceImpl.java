@@ -133,6 +133,24 @@ public class LecturerServiceImpl implements LecturerService {
     public QueryReplyDTO saveQueryReply(QueryReplyDTO queryReplyDTO) {
         return lecturerDAO.saveQueryReply(queryReplyDTO);
     }
+    @Override
+    public AnnouncementDTO editAnnouncement(AnnouncementDTO announcementDTO, boolean preserveExistingAttachment) {
+        return lecturerDAO.editAnnouncement(announcementDTO, preserveExistingAttachment);
+    }
+
+    @Override
+    public AssignmentsDTO editAssignment(AssignmentsDTO assignmentsDTO, boolean preserveExistingAttachment) {
+        return lecturerDAO.editAssignment(assignmentsDTO, preserveExistingAttachment);
+    }
+
+    @Override
+    public ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment) {
+        return lecturerDAO.editResource(resourceDTO, preserveExistingAttachment);
+    }
+
+
+
+
 
 
 
