@@ -483,32 +483,6 @@ public class LecturerDAOImpl implements LecturerDAO {
     }
 
     @Override
-    public List<NotificationDTO> findByUserId(Integer userId) {
-        List<NotificationDTO> list = new ArrayList<>();
-        String sql = "SELECT notification_id, user_id, message, is_read, is_delete "
-                + "FROM notification WHERE user_id=? AND is_delete=FALSE";
-        try (Connection conn = databaseConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    NotificationDTO dto = new NotificationDTO();
-                    dto.setNotificationId(rs.getInt("notification_id"));
-                    dto.setUserId(rs.getInt("user_id"));
-                    dto.setMessage(rs.getString("message"));
-                    dto.setIsRead(rs.getBoolean("is_read"));
-                    dto.setIsDelete(rs.getBoolean("is_delete"));
-                    list.add(dto);
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error fetching notifications", e);
-        }
-        return list;
-    }
-
-
-    @Override
     public List<SiteAnnouncementDTO> findAllSiteAnnouncements() {
         List<SiteAnnouncementDTO> list = new ArrayList<>();
         String sql = "SELECT announcement_id, topic, description,date,time,created_at FROM site_announcements ORDER BY created_at DESC";
@@ -599,6 +573,297 @@ public class LecturerDAOImpl implements LecturerDAO {
         }
     }
 
+    @Override
+    public AnnouncementDTO editAnnouncement(AnnouncementDTO announcementDTO, boolean preserveExistingAttachment) {
+        String sql;
+
+        if (preserveExistingAttachment) {
+            sql = "UPDATE announcement SET content = ?, link = ? WHERE announcement_id = ?";
+        } else {
+            sql = "UPDATE announcement SET content = ?, link = ?, attachment = ? WHERE announcement_id = ?";
+        }
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, announcementDTO.getContent());
+            statement.setString(2, announcementDTO.getLink());
+
+            if (preserveExistingAttachment) {
+                statement.setInt(3, announcementDTO.getAnnouncementId());
+            } else {
+                statement.setString(3, announcementDTO.getAttachment());
+                statement.setInt(4, announcementDTO.getAnnouncementId());
+            }
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Fetch and return the updated announcement
+                return findAnnouncementById(announcementDTO.getAnnouncementId());
+            } else {
+                throw new RuntimeException("Announcement not found with id: " + announcementDTO.getAnnouncementId());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating announcement: " + e.getMessage(), e);
+        }
+    }
+
+    private AnnouncementDTO findAnnouncementById(Integer announcementId) {
+        String sql = "SELECT announcement_id, lecturer_id, course_id, content, link, attachment FROM announcement WHERE announcement_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, announcementId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                AnnouncementDTO dto = new AnnouncementDTO();
+                dto.setAnnouncementId(resultSet.getInt("announcement_id"));
+                dto.setLecturerId(resultSet.getInt("lecturer_id"));
+                dto.setCourseId(resultSet.getInt("course_id"));
+                dto.setContent(resultSet.getString("content"));
+                dto.setLink(resultSet.getString("link"));
+                dto.setAttachment(resultSet.getString("attachment"));
+                return dto;
+            } else {
+                throw new RuntimeException("Announcement not found with id: " + announcementId);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching announcement: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public AssignmentsDTO editAssignment(AssignmentsDTO assignmentsDTO, boolean preserveExistingAttachment) {
+        String sql;
+
+        if (preserveExistingAttachment) {
+            // Update without changing attachment
+            sql = "UPDATE assignments SET title = ?, description = ?, date = ? WHERE assignment_id = ?";
+        } else {
+            // Update including attachment
+            sql = "UPDATE assignments SET title = ?, description = ?, date = ?, attachment = ? WHERE assignment_id = ?";
+        }
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, assignmentsDTO.getTitle());
+            statement.setString(2, assignmentsDTO.getDescription());
+            statement.setDate(3, Date.valueOf(assignmentsDTO.getDate()));
+
+            if (preserveExistingAttachment) {
+                statement.setInt(4, assignmentsDTO.getAssignmentId());
+            } else {
+                statement.setString(4, assignmentsDTO.getAttachment());
+                statement.setInt(5, assignmentsDTO.getAssignmentId());
+            }
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Fetch and return the updated assignment
+                return findAssignmentById(assignmentsDTO.getAssignmentId());
+            } else {
+                throw new RuntimeException("Assignment not found with id: " + assignmentsDTO.getAssignmentId());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating assignment: " + e.getMessage(), e);
+        }
+    }
+
+    private AssignmentsDTO findAssignmentById(Integer assignmentId) {
+        String sql = "SELECT assignment_id, course_id, lecturer_id, title, description, attachment, date FROM assignments WHERE assignment_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, assignmentId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                AssignmentsDTO dto = new AssignmentsDTO();
+                dto.setAssignmentId(resultSet.getInt("assignment_id"));
+                dto.setCourseId(resultSet.getInt("course_id"));
+                dto.setLecturerId(resultSet.getInt("lecturer_id"));
+                dto.setTitle(resultSet.getString("title"));
+                dto.setDescription(resultSet.getString("description"));
+                dto.setAttachment(resultSet.getString("attachment"));
+
+                Date sqlDate = resultSet.getDate("date");
+                if (sqlDate != null) {
+                    dto.setDate(sqlDate.toLocalDate());
+                }
+
+                return dto;
+            } else {
+                throw new RuntimeException("Assignment not found with id: " + assignmentId);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching assignment: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment) {
+        String sql;
+
+        if (preserveExistingAttachment) {
+            // Update without changing attachment
+            sql = "UPDATE resource SET file_name = ? WHERE resource_id = ?";
+        } else {
+            // Update including attachment
+            sql = "UPDATE resource SET file_name = ?, attachment = ? WHERE resource_id = ?";
+        }
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setString(1, resourceDTO.getFileName());
+
+            if (preserveExistingAttachment) {
+                statement.setInt(2, resourceDTO.getResourceId());
+            } else {
+                statement.setString(2, resourceDTO.getAttachment());
+                statement.setInt(3, resourceDTO.getResourceId());
+            }
+
+            int rowsAffected = statement.executeUpdate();
+
+            if (rowsAffected > 0) {
+                // Fetch and return the updated resource
+                return findResourceById(resourceDTO.getResourceId());
+            } else {
+                throw new RuntimeException("Resource not found with id: " + resourceDTO.getResourceId());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error updating resource: " + e.getMessage(), e);
+        }
+    }
+
+    private ResourceDTO findResourceById(Integer resourceId) {
+        String sql = "SELECT resource_id, lecturer_id, course_id, file_name, attachment FROM resource WHERE resource_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, resourceId);
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                ResourceDTO dto = new ResourceDTO();
+                dto.setResourceId(resultSet.getInt("resource_id"));
+                dto.setLecturerId(resultSet.getInt("lecturer_id"));
+                dto.setCourseId(resultSet.getInt("course_id"));
+                dto.setFileName(resultSet.getString("file_name"));
+                dto.setAttachment(resultSet.getString("attachment"));
+                return dto;
+            } else {
+                throw new RuntimeException("Resource not found with id: " + resourceId);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error fetching resource: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public Integer findUserIdByLecturerId(Integer lecturerId) {
+        String sql = "SELECT user_id FROM lecturer WHERE lecturer_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, lecturerId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("user_id");
+                }
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding user ID for lecturer ID: " + lecturerId, e);
+        }
+    }
+
+    @Override
+    public UserDTO findUserDetailsById(Integer userId) {
+        String sql = "SELECT user_id, f_name, l_name, email, NIC, address, contact, DOB, role, password, status FROM user WHERE user_id = ?";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, userId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    UserDTO user = new UserDTO();
+                    user.setUserId(resultSet.getInt("user_id"));
+                    user.setFName(resultSet.getString("f_name"));
+                    user.setLName(resultSet.getString("l_name"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setNic(resultSet.getString("NIC"));
+                    user.setAddress(resultSet.getString("address"));
+                    user.setContact(resultSet.getString("contact"));
+
+                    Date dobDate = resultSet.getDate("DOB");
+                    if (dobDate != null) {
+                        user.setDob(dobDate.toLocalDate());
+                    }
+
+                    user.setRole(resultSet.getString("role"));
+                    user.setPassword(resultSet.getString("password"));
+                    user.setStatus(resultSet.getString("status"));
+
+                    return user;
+                }
+                return null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Error finding user details for user ID: " + userId, e);
+        }
+    }
+    @Override
+    public List<NotificationDTO> findNotificationsByUserId(Integer userId) {
+        List<NotificationDTO> notifications = new ArrayList<>();
+        String sql = "SELECT notification_id, user_id, message, is_read, is_delete " +
+                "FROM notification WHERE user_id = ? AND is_delete = FALSE " +
+                "ORDER BY notification_id DESC";
+
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+
+            statement.setInt(1, userId);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    NotificationDTO notification = new NotificationDTO();
+                    notification.setNotificationId(resultSet.getInt("notification_id"));
+                    notification.setUserId(resultSet.getInt("user_id"));
+                    notification.setMessage(resultSet.getString("message"));
+                    notification.setIsRead(resultSet.getBoolean("is_read"));
+                    notification.setIsDelete(resultSet.getBoolean("is_delete"));
+
+                    notifications.add(notification);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error fetching notifications for user ID: " + userId, e);
+        }
+
+        return notifications;
+    }
 
 
 
@@ -606,8 +871,56 @@ public class LecturerDAOImpl implements LecturerDAO {
 
 
 
+    @Override
+    public List<AppointmentDTO> getAllAppointmentsByLecturerId(Integer lecturerId) {
+        List<AppointmentDTO> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointment WHERE student_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, lecturerId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                AppointmentDTO appointment = new AppointmentDTO(
+                        rs.getInt("appointment_id"),
+                        rs.getInt("lecturer_id"),
+                        rs.getInt("student_id"),
+                        rs.getString("purpose"),
+                        rs.getDate("date").toLocalDate(),       // Convert to LocalDate
+                        rs.getTime("time").toLocalTime(),       // Convert to LocalTime
+                        rs.getString("status"),                 // You missed status in your example
+                        rs.getString("location"),
+                        rs.getInt("duration")
+                );
 
+                appointments.add(appointment);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
+    }
 
+    @Override
+    public AppointmentDTO setAppointment( AppointmentDTO appointmentDTO) {
+        String sql = "UPDATE appointment SET location = ?, status= ?WHERE studentId = ? AND appointmentId=?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, appointmentDTO.getLocation());
+            ps.setString(2, appointmentDTO.getStatus());
+            ps.setInt(3, appointmentDTO.getStudentId());
+            ps.setInt(4, appointmentDTO.getAppointmentId());
+
+            int updated = ps.executeUpdate();
+            if (updated == 0) {
+                throw new SQLException("No appointments found with appointment_id and student_id " +
+                        appointmentDTO.getAppointmentId()+appointmentDTO.getStudentId());
+            }
+            return appointmentDTO;
+        } catch (SQLException e) {
+            throw new RuntimeException("Error setting appointment", e);
+        }
+    }
 
 
 }
