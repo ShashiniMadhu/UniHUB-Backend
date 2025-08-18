@@ -31,4 +31,4 @@ RUN mkdir -p src/main/resources/static/uploads
 EXPOSE 8086
 
 # Run the application
-CMD ["java", "-jar", "target/skill-mentor-root-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "target/Server-root-0.0.1-SNAPSHOT.jar"]
