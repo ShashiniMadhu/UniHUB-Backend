@@ -2,6 +2,9 @@ package com.UniHUB.Server.dao.Impl;
 
 import com.UniHUB.Server.dao.StudentDAO;
 import com.UniHUB.Server.dto.QueryDTO;
+import com.UniHUB.Server.dto.CourseDTO;
+import com.UniHUB.Server.dto.ResourceDTO;
+import com.UniHUB.Server.dto.FeedbackDTO;
 import com.UniHUB.Server.util.DatabaseConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -16,8 +19,8 @@ public class StudentDAOImpl implements StudentDAO {
 
     // Implementation for student queries
     @Override
-    public void addQuery(QueryDTO query) {
-        String sql = "INSERT INTO query (course_id, student_id, category, priority, question) VALUES (?, ?, ?, ?, ?)";
+    public QueryDTO addQuery(QueryDTO query) {
+        String sql = "INSERT INTO query (course_Id, student_Id, category, Priority, question) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, query.getCourseId());
@@ -27,25 +30,30 @@ public class StudentDAOImpl implements StudentDAO {
             stmt.setString(5, query.getQuestion());
             stmt.executeUpdate();
         } catch (SQLException e) {
+            // Better error handling - log the error and potentially re-throw
+            System.err.println("Error inserting query: " + e.getMessage());
             e.printStackTrace();
+            // Consider throwing a custom exception or handling appropriately
+            // throw new DatabaseException("Failed to add query", e);
         }
+        return query;
     }
 
     @Override
     public List<QueryDTO> getQueriesByStudentId(int studentId) {
         List<QueryDTO> queries = new ArrayList<>();
-        String sql = "SELECT * FROM query WHERE student_id = ?";
+        String sql = "SELECT * FROM query WHERE student_Id = ?";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, studentId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 QueryDTO query = new QueryDTO(
-                    rs.getInt("query_id"),
-                    rs.getInt("course_id"),
-                    rs.getInt("student_id"),
+                    rs.getInt("query_Id"),
+                    rs.getInt("course_Id"),
+                    rs.getInt("student_Id"),
                     rs.getString("category"),
-                    rs.getString("priority"),
+                    rs.getString("Priority"),
                     rs.getString("question")
                 );
                 queries.add(query);
@@ -54,6 +62,127 @@ public class StudentDAOImpl implements StudentDAO {
             e.printStackTrace();
         }
         return queries;
+    }
+
+    @Override
+    public List<QueryDTO> getQueriesByStudentIdAndCourseId(int studentId, int courseId) {
+        List<QueryDTO> queries = new ArrayList<>();
+        String sql = "SELECT * FROM query WHERE student_Id = ? AND course_Id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            stmt.setInt(2, courseId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                QueryDTO query = new QueryDTO();
+                query.setQueryId(rs.getInt("query_Id"));
+                query.setCourseId(rs.getInt("course_Id"));
+                query.setStudentId(rs.getInt("student_Id"));
+                query.setCategory(rs.getString("category"));
+                query.setPriority(rs.getString("Priority"));
+                query.setQuestion(rs.getString("question"));
+                queries.add(query);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching queries by student and course: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return queries;
+    }
+
+    @Override
+    public List<CourseDTO> getCoursesByStudentId(int studentId) {
+        List<CourseDTO> courses = new ArrayList<>();
+        String sql = "SELECT c.course_Id, c.name FROM course c JOIN student_course sc ON c.course_Id = sc.course_Id WHERE sc.student_Id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                courses.add(new CourseDTO(rs.getInt("course_Id"), rs.getString("name")));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return courses;
+    }
+
+    @Override
+    public List<ResourceDTO> getResourcesByCourseId(int courseId) {
+        List<ResourceDTO> resources = new ArrayList<>();
+        String sql = "SELECT * FROM resource WHERE course_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, courseId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                resources.add(new ResourceDTO(
+                    rs.getInt("resource_id"),
+                    rs.getInt("lecturer_id"),
+                    rs.getInt("course_id"),
+                    rs.getString("file_name"),
+                    rs.getString("attachment")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resources;
+    }
+
+    @Override
+    public void addResource(ResourceDTO resource) {
+        String sql = "INSERT INTO resource (lecturer_id, course_id, file_name, attachment) VALUES (?, ?, ?, ?)";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, resource.getLecturerId());
+            stmt.setInt(2, resource.getCourseId());
+            stmt.setString(3, resource.getFileName());
+            stmt.setString(4, resource.getAttachment());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public List<FeedbackDTO> getFeedbackByCourseId(int courseId) {
+        List<FeedbackDTO> feedbackList = new ArrayList<>();
+        String sql = "SELECT * FROM feedback WHERE course_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, courseId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                feedbackList.add(new FeedbackDTO(
+                    rs.getInt("feedback_id"),
+                    rs.getInt("student_id"),
+                    rs.getInt("course_id"),
+                    rs.getInt("lecturer_id"),
+                    rs.getString("review"),
+                    rs.getInt("rate")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return feedbackList;
+    }
+
+    @Override
+    public void addFeedback(FeedbackDTO feedback) {
+        String sql = "INSERT INTO feedback (student_id, course_id, lecturer_id, review, rate) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, feedback.getStudentId());
+            stmt.setInt(2, feedback.getCourseId());
+            stmt.setInt(3, feedback.getLecturerId());
+            stmt.setString(4, feedback.getReview());
+            stmt.setInt(5, feedback.getRate());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     // QueryDAO is deprecated and should be removed. No references to QueryDAO should remain in the codebase.
