@@ -1,5 +1,6 @@
 package com.UniHUB.Server.service;
 
+import com.UniHUB.Server.dto.CourseFullDTO;
 import com.UniHUB.Server.dto.SiteAnnouncementDTO;
 import com.UniHUB.Server.dto.UserDTO;
 
@@ -35,5 +36,9 @@ public interface AdminService {
     UserDTO deactivateUser(UserDTO userDTO);
 
     UserDTO reactivateUser(UserDTO userDTO);
+
+    CourseFullDTO createCourse(CourseFullDTO courseFullDTO);
+
+    List<UserDTO> getAvailableLecturers();
 
 }

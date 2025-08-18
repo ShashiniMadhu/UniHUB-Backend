@@ -172,15 +172,10 @@ public class LecturerServiceImpl implements LecturerService {
 
 
 
-    @Override
-    public List<AppointmentDTO> getAllAppointmentsByLecturerId(Integer lecturerId) {
-        return lecturerDAO.getAllAppointmentsByLecturerId(lecturerId);
-    }
 
-    @Override
-    public AppointmentDTO setAppointment(AppointmentDTO appointmentDTO) {
-        return lecturerDAO.setAppointment(appointmentDTO);
-    }
+
+
+
 
 
 }
