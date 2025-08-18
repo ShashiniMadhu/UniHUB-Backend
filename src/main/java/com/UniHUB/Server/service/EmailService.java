@@ -6,4 +6,5 @@ public interface EmailService {
     void sendDeactivationEmail(String toEmail, String userName);
     void sendReactivationEmail(String toEmail, String userName, String newPassword);
 
+    void sendpasswordResetEmail(String toEmail,String username,String resetLink);
 }

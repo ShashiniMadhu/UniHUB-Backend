@@ -43,7 +43,7 @@ public class StudentController {
         return studentDAO.getQueriesByStudentId(studentId);
     }
 
-    @GetMapping("lecturers")
+    @GetMapping("/lecturers")
     public List<LecturerDTO> getAllLecturers() {
         return studentDAO.getAllLecturers();
     }
