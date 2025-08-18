@@ -8,8 +8,9 @@ import java.util.List;
 
 // DAO Interface
 public interface StudentDAO {
-    void addQuery(QueryDTO query);
+    QueryDTO addQuery(QueryDTO query);
     List<QueryDTO> getQueriesByStudentId(int studentId);
+    List<QueryDTO> getQueriesByStudentIdAndCourseId(int studentId, int courseId);
     List<CourseDTO> getCoursesByStudentId(int studentId);
     List<ResourceDTO> getResourcesByCourseId(int courseId);
     void addResource(ResourceDTO resource);

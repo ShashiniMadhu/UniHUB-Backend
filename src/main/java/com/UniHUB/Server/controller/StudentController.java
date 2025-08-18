@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
+@CrossOrigin("http://localhost:5173")
 @RestController
 @RequestMapping("/student")
 public class StudentController {
@@ -19,9 +20,10 @@ public class StudentController {
         this.studentDAO = studentDAO;
     }
 
-    @PostMapping(value="/submit")
-    public void submitQuery(@RequestBody QueryDTO query) {
-        studentDAO.addQuery(query);
+    @PostMapping(value="/{studentId}/submit")
+    public QueryDTO submitQuery(@RequestBody QueryDTO queryDTO) {
+        final QueryDTO query = studentDAO.addQuery(queryDTO);
+        return query;
     }
 
     @GetMapping("/{studentId}")
@@ -54,5 +56,16 @@ public class StudentController {
     public void addCourseFeedback(@PathVariable int courseId, @RequestBody FeedbackDTO feedback) {
         feedback.setCourseId(courseId);
         studentDAO.addFeedback(feedback);
+    }
+
+    @GetMapping("/{studentId}/queries")
+    public List<QueryDTO> getStudentQueriesByCourse(
+            @PathVariable int studentId,
+            @RequestParam(value = "course_Id", required = false) Integer courseId) {
+        if (courseId != null) {
+            return studentDAO.getQueriesByStudentIdAndCourseId(studentId, courseId);
+        } else {
+            return studentDAO.getQueriesByStudentId(studentId);
+        }
     }
 }

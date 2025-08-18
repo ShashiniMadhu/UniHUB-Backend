@@ -19,8 +19,8 @@ public class StudentDAOImpl implements StudentDAO {
 
     // Implementation for student queries
     @Override
-    public void addQuery(QueryDTO query) {
-        String sql = "INSERT INTO query (course_id, student_id, category, priority, question) VALUES (?, ?, ?, ?, ?)";
+    public QueryDTO addQuery(QueryDTO query) {
+        String sql = "INSERT INTO query (course_Id, student_Id, category, Priority, question) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, query.getCourseId());
@@ -30,30 +30,61 @@ public class StudentDAOImpl implements StudentDAO {
             stmt.setString(5, query.getQuestion());
             stmt.executeUpdate();
         } catch (SQLException e) {
+            // Better error handling - log the error and potentially re-throw
+            System.err.println("Error inserting query: " + e.getMessage());
             e.printStackTrace();
+            // Consider throwing a custom exception or handling appropriately
+            // throw new DatabaseException("Failed to add query", e);
         }
+        return query;
     }
 
     @Override
     public List<QueryDTO> getQueriesByStudentId(int studentId) {
         List<QueryDTO> queries = new ArrayList<>();
-        String sql = "SELECT * FROM query WHERE student_id = ?";
+        String sql = "SELECT * FROM query WHERE student_Id = ?";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, studentId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 QueryDTO query = new QueryDTO(
-                    rs.getInt("query_id"),
-                    rs.getInt("course_id"),
-                    rs.getInt("student_id"),
+                    rs.getInt("query_Id"),
+                    rs.getInt("course_Id"),
+                    rs.getInt("student_Id"),
                     rs.getString("category"),
-                    rs.getString("priority"),
+                    rs.getString("Priority"),
                     rs.getString("question")
                 );
                 queries.add(query);
             }
         } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return queries;
+    }
+
+    @Override
+    public List<QueryDTO> getQueriesByStudentIdAndCourseId(int studentId, int courseId) {
+        List<QueryDTO> queries = new ArrayList<>();
+        String sql = "SELECT * FROM query WHERE student_Id = ? AND course_Id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, studentId);
+            stmt.setInt(2, courseId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                QueryDTO query = new QueryDTO();
+                query.setQueryId(rs.getInt("query_Id"));
+                query.setCourseId(rs.getInt("course_Id"));
+                query.setStudentId(rs.getInt("student_Id"));
+                query.setCategory(rs.getString("category"));
+                query.setPriority(rs.getString("Priority"));
+                query.setQuestion(rs.getString("question"));
+                queries.add(query);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error fetching queries by student and course: " + e.getMessage());
             e.printStackTrace();
         }
         return queries;
