@@ -25,4 +25,9 @@ public interface LecturerService {
 
     List<AppointmentDTO> getAllAppointmentsByLecturerId(Integer lecturerId);
     AppointmentDTO setAppointment(AppointmentDTO appointmentDTO);
+    AnnouncementDTO editAnnouncement(AnnouncementDTO announcementDTO, boolean preserveExistingAttachment);
+    AssignmentsDTO editAssignment(AssignmentsDTO assignmentsDTO, boolean preserveExistingAttachment);
+    ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment);
+    UserDTO getLecturerDetails(Integer lecturerId);
+
 }

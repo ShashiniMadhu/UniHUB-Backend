@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 @Component
 public class DatabaseConnection {
-    private final String url = "jdbc:mysql://localhost:3306/unihub";
+    private final String url = "jdbc:mysql://localhost:3307/unihub";
     private final String username = "root";
     private final String password = "";
 
