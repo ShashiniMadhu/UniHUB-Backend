@@ -29,6 +29,6 @@ public interface LecturerDAO {
     ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment);
     Integer findUserIdByLecturerId(Integer lecturerId);
     UserDTO findUserDetailsById(Integer userId);
-   //test
+
 
 }

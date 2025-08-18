@@ -2,19 +2,15 @@ package com.UniHUB.Server.dto;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-@Getter
-@Setter
+
 @NoArgsConstructor
 @AllArgsConstructor
-
+@Data
 public class AppointmentDTO {
 
     @JsonProperty("appointment_id")
@@ -28,4 +24,7 @@ public class AppointmentDTO {
     private LocalDate date;
     private LocalTime time;
     private String   status;
+    private String location;
+    private Integer duration;
+
 }
