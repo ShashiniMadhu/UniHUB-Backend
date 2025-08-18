@@ -25,7 +25,7 @@ public class StudentDAOImpl implements StudentDAO {
     // Implementation for student queries
     @Override
     public QueryDTO addQuery(QueryDTO query) {
-        String sql = "INSERT INTO query (course_Id, student_Id, category, Priority, question) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO query (course_Id, student_Id, category, priority, question) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, query.getCourseId());
@@ -59,7 +59,8 @@ public class StudentDAOImpl implements StudentDAO {
                     rs.getInt("student_Id"),
                     rs.getString("category"),
                     rs.getString("Priority"),
-                    rs.getString("question")
+                    rs.getString("question"),
+                        rs.getTimestamp("created_at")
                 );
                 queries.add(query);
             }
@@ -281,6 +282,7 @@ public class StudentDAOImpl implements StudentDAO {
                 query.setCategory(rs.getString("category"));
                 query.setPriority(rs.getString("Priority"));
                 query.setQuestion(rs.getString("question"));
+                query.setCreatedAt(rs.getTimestamp("created_at"));
                 queries.add(query);
             }
         } catch (SQLException e) {
@@ -358,7 +360,7 @@ public class StudentDAOImpl implements StudentDAO {
                     rs.getInt("feedback_id"),
                     rs.getInt("student_id"),
                     rs.getInt("course_id"),
-                    rs.getInt("lecturer_id"),
+
                     rs.getString("review"),
                     rs.getInt("rate")
                 ));
@@ -371,17 +373,49 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public void addFeedback(FeedbackDTO feedback) {
-        String sql = "INSERT INTO feedback (student_id, course_id, lecturer_id, review, rate) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO feedback (student_Id, course_Id, review, rate) VALUES (?, ?, ?, ?)";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, feedback.getStudentId());
             stmt.setInt(2, feedback.getCourseId());
-            stmt.setInt(3, feedback.getLecturerId());
-            stmt.setString(4, feedback.getReview());
-            stmt.setInt(5, feedback.getRate());
+
+            stmt.setString(3, feedback.getReview());
+            stmt.setInt(4, feedback.getRate());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean updateQuery(QueryDTO query) throws SQLException {
+        String sql = "UPDATE query SET category = ?, priority = ?, question = ? WHERE query_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, query.getCategory());
+            stmt.setString(2, query.getPriority());
+            stmt.setString(3, query.getQuestion());
+            stmt.setInt(4, query.getQueryId());
+
+            int updated = stmt.executeUpdate();
+            return updated > 0;
+        }
+    }
+
+    @Override
+    public Timestamp getQueryCreatedTime(int queryId) throws SQLException {
+        String sql = "SELECT created_at FROM query WHERE query_id = ?";
+        try (Connection conn = databaseConnection.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, queryId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getTimestamp("created_at");
+            } else {
+                return null;
+            }
         }
     }
 
