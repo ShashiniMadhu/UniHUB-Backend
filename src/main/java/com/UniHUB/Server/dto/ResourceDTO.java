@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,4 +24,22 @@ public class ResourceDTO {
     @JsonProperty("file_name")
     private String fileName;
     private String attachment;
+
+    // Additional fields for enhanced functionality
+    @JsonProperty("lecturer_name")
+    private String lecturerName;
+    @JsonProperty("course_name")
+    private String courseName;
+    @JsonProperty("file_size")
+    private String fileSize;
+    @JsonProperty("upload_date")
+    private LocalDateTime uploadDate;
+    @JsonProperty("download_count")
+    private Integer downloadCount;
+    @JsonProperty("file_type")
+    private String fileType;
+    private String description;
+
+    public ResourceDTO(int resourceId, int lecturerId, int courseId, String fileName, String attachment) {
+    }
 }

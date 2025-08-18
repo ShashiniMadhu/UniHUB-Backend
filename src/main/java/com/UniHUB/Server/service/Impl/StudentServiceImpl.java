@@ -14,6 +14,7 @@ import com.UniHUB.Server.dao.LecturerDAO;
 import com.UniHUB.Server.dto.AnnouncementDTO;
 import com.UniHUB.Server.dto.AppointmentDTO;
 import com.UniHUB.Server.dto.LecturerDTO;
+import com.UniHUB.Server.dto.ResourceDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -103,4 +104,19 @@ public class StudentServiceImpl implements StudentService {
     }
 
 
+    // Resource management methods implementation
+    @Override
+    public List<ResourceDTO> getResourcesByStudentId(int studentId) {
+        return studentDAO.getResourcesByStudentId(studentId);
+    }
+
+    @Override
+    public ResourceDTO getResourceById(int resourceId) {
+        return studentDAO.getResourceById(resourceId);
+    }
+
+    @Override
+    public byte[] downloadResource(int resourceId) {
+        return studentDAO.downloadResource(resourceId);
+    }
 }
