@@ -14,8 +14,20 @@ public class NotificationServiceImpl implements NotificationService {
     @Autowired
     private LecturerDAO lecturerDAO;
 
+
+
     @Override
-    public List<NotificationDTO> getNotificationsByUserId(Integer userId) {
-        return lecturerDAO.findByUserId(userId);
+    public List<NotificationDTO> getNotificationsByLecturerId(Integer lecturerId) {
+        // First, get the userId corresponding to the lecturerId
+        Integer userId = lecturerDAO.findUserIdByLecturerId(lecturerId);
+
+        if (userId == null) {
+            throw new RuntimeException("No user found for lecturer ID: " + lecturerId);
+        }
+
+        // Then, get notifications for that userId
+        return lecturerDAO.findNotificationsByUserId(userId);
     }
+
+
 }

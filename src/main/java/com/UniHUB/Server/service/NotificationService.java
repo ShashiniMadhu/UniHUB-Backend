@@ -5,5 +5,5 @@ import com.UniHUB.Server.dto.NotificationDTO;
 import java.util.List;
 
 public interface NotificationService {
-    List<NotificationDTO> getNotificationsByUserId(Integer userId);
+    List<NotificationDTO> getNotificationsByLecturerId(Integer lecturerId);
 }
