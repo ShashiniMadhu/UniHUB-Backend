@@ -27,6 +27,8 @@ public interface LecturerDAO {
     AnnouncementDTO editAnnouncement(AnnouncementDTO announcementDTO, boolean preserveExistingAttachment);
     AssignmentsDTO editAssignment(AssignmentsDTO assignmentsDTO, boolean preserveExistingAttachment);
     ResourceDTO editResource(ResourceDTO resourceDTO, boolean preserveExistingAttachment);
+    Integer findUserIdByLecturerId(Integer lecturerId);
+    UserDTO findUserDetailsById(Integer userId);
 
 
 }
