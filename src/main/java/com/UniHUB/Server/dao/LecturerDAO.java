@@ -29,7 +29,4 @@ public interface LecturerDAO {
     Integer findUserIdByLecturerId(Integer lecturerId);
     UserDTO findUserDetailsById(Integer userId);
     List<NotificationDTO> findNotificationsByUserId(Integer userId);
-
-
-
 }

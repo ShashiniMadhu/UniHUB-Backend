@@ -65,13 +65,13 @@ public class LecturerController {
     }
 
     @PostMapping(value = "/assignment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-      public ResponseEntity<?> publishAssignment(
-              @RequestParam("courseId") Integer courseId,
-              @RequestParam("lecturerId") Integer lecturerId,
-              @RequestParam("title") String title,
-              @RequestParam("description") String description,
-              @RequestParam(value = "attachment" , required = false) MultipartFile attachment,
-              @RequestParam("date") LocalDate date
+    public ResponseEntity<?> publishAssignment(
+            @RequestParam("courseId") Integer courseId,
+            @RequestParam("lecturerId") Integer lecturerId,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam(value = "attachment" , required = false) MultipartFile attachment,
+            @RequestParam("date") LocalDate date
 
     ) {
         try{
@@ -106,11 +106,11 @@ public class LecturerController {
     }
 
     @PostMapping(value = "/resource" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-       public ResponseEntity<?> publishresource(
-               @RequestParam("lecturerId") Integer lecturerId,
-               @RequestParam("courseId") Integer courseId,
-               @RequestParam("fileName") String fileName,
-               @RequestParam(value = "attachment" , required = false) MultipartFile attachment
+    public ResponseEntity<?> publishresource(
+            @RequestParam("lecturerId") Integer lecturerId,
+            @RequestParam("courseId") Integer courseId,
+            @RequestParam("fileName") String fileName,
+            @RequestParam(value = "attachment" , required = false) MultipartFile attachment
     ){
         try{
             String imageUrl = null;
