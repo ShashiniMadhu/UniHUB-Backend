@@ -4,6 +4,9 @@ FROM openjdk:17-jdk-slim
 # Set working directory
 WORKDIR /app
 
+# Install necessary packages
+RUN apt-get update && apt-get install -y wget && rm -rf /var/lib/apt/lists/*
+
 # Copy Maven wrapper and pom.xml first (for better caching)
 COPY mvnw .
 COPY .mvn .mvn
@@ -18,20 +21,14 @@ RUN ./mvnw dependency:go-offline -B
 # Copy source code
 COPY src ./src
 
-# Build the application with verbose output
-RUN ./mvnw clean package -DskipTests -X
+# Build the application
+RUN ./mvnw clean package -DskipTests
 
-# List the target directory to see what was created
-RUN ls -la target/
-
-# Create logs directory
-RUN mkdir -p logs
-
-# Create uploads directory
-RUN mkdir -p src/main/resources/static/uploads
+# Create necessary directories
+RUN mkdir -p logs && mkdir -p uploads
 
 # Expose the port your app runs on
 EXPOSE 8086
 
-# Use a more flexible approach to find the JAR file
-CMD ["sh", "-c", "java -jar target/*.jar"]
+# Run the application
+CMD ["java", "-jar", "target/Server-root-0.0.1-SNAPSHOT.jar"]
