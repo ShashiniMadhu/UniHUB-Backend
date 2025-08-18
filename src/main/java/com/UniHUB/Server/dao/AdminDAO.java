@@ -1,5 +1,6 @@
 package com.UniHUB.Server.dao;
 
+import com.UniHUB.Server.dto.CourseFullDTO;
 import com.UniHUB.Server.dto.SiteAnnouncementDTO;
 import com.UniHUB.Server.dto.UserDTO;
 
@@ -27,5 +28,11 @@ public interface AdminDAO {
     UserDTO reactivateUser(UserDTO userDTO);
 
     UserDTO getUserById(Integer userId);
+
+    CourseFullDTO createCourse(CourseFullDTO courseFullDTO);
+
+    List<UserDTO> getAvailableLecturers();
+
+    void assignLecturerToCourse(int lecturerId, int courseId);
 
 }

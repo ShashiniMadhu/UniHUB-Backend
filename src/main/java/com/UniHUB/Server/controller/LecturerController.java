@@ -65,13 +65,13 @@ public class LecturerController {
     }
 
     @PostMapping(value = "/assignment", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-      public ResponseEntity<?> publishAssignment(
-              @RequestParam("courseId") Integer courseId,
-              @RequestParam("lecturerId") Integer lecturerId,
-              @RequestParam("title") String title,
-              @RequestParam("description") String description,
-              @RequestParam(value = "attachment" , required = false) MultipartFile attachment,
-              @RequestParam("date") LocalDate date
+    public ResponseEntity<?> publishAssignment(
+            @RequestParam("courseId") Integer courseId,
+            @RequestParam("lecturerId") Integer lecturerId,
+            @RequestParam("title") String title,
+            @RequestParam("description") String description,
+            @RequestParam(value = "attachment" , required = false) MultipartFile attachment,
+            @RequestParam("date") LocalDate date
 
     ) {
         try{
@@ -106,11 +106,11 @@ public class LecturerController {
     }
 
     @PostMapping(value = "/resource" , consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-       public ResponseEntity<?> publishresource(
-               @RequestParam("lecturerId") Integer lecturerId,
-               @RequestParam("courseId") Integer courseId,
-               @RequestParam("fileName") String fileName,
-               @RequestParam(value = "attachment" , required = false) MultipartFile attachment
+    public ResponseEntity<?> publishresource(
+            @RequestParam("lecturerId") Integer lecturerId,
+            @RequestParam("courseId") Integer courseId,
+            @RequestParam("fileName") String fileName,
+            @RequestParam(value = "attachment" , required = false) MultipartFile attachment
     ){
         try{
             String imageUrl = null;
@@ -273,11 +273,6 @@ public class LecturerController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("Error saving query reply: " + e.getMessage());
         }
-    }
-
-    @GetMapping("/appointments/{lecturerId}")
-    public List<AppointmentDTO> getAllAppointmentsByLecturerId(@PathVariable int lecturerId) {
-        return lecturerService.getAllAppointmentsByLecturerId(lecturerId);
     }
 
 

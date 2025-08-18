@@ -1,5 +1,6 @@
 package com.UniHUB.Server.controller;
 
+import com.UniHUB.Server.dto.CourseFullDTO;
 import com.UniHUB.Server.dto.SiteAnnouncementDTO;
 import com.UniHUB.Server.dto.UserDTO;
 import com.UniHUB.Server.service.AdminService;
@@ -202,6 +203,26 @@ public class AdminController {
         } catch (Exception e) {
             return new ResponseEntity<>("Unexpected error: " + e.getMessage(),
                     HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/create_course")
+    public ResponseEntity<?> createCourse(@RequestBody CourseFullDTO courseFullDTO){
+        try{
+            final CourseFullDTO courses = adminService.createCourse(courseFullDTO);
+            return  ResponseEntity.ok(courses);
+        }catch (Exception e){
+            return new ResponseEntity<>("Error fetching courses: " + e.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/available_lecturers")
+    public ResponseEntity<?> getAvailableLecturers(){
+        try{
+            final List<UserDTO> lecturers = adminService.getAvailableLecturers();
+            return ResponseEntity.ok(lecturers);
+        }catch(Exception e){
+            return new ResponseEntity<>("Error fetching available lecturers: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
