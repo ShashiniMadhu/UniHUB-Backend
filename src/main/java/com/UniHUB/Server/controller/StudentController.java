@@ -9,9 +9,7 @@ import com.UniHUB.Server.dto.ResourceDTO;
 import com.UniHUB.Server.dto.FeedbackDTO;
 import com.UniHUB.Server.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.http.HttpStatus;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,7 +43,7 @@ public class StudentController {
         return studentDAO.getQueriesByStudentId(studentId);
     }
 
-    @GetMapping("lecturers")
+    @GetMapping("/lecturers")
     public List<LecturerDTO> getAllLecturers() {
         return studentDAO.getAllLecturers();
     }

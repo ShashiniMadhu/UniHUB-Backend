@@ -101,4 +101,31 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Failed to send reactivation email: " + e.getMessage());
         }
     }
+
+    @Override
+    public void sendpasswordResetEmail(String toEmail, String username, String resetLink) {
+        try{
+            SimpleMailMessage message=new SimpleMailMessage();
+            message.setTo(toEmail);
+            message.setSubject("UniHUB Password Reset Request");
+
+            String emailBody = String.format(
+                    "Dear %s,\n\n" +
+                            "We received a request to reset your UniHUB account password.\n\n" +
+                            "Please click the link below to reset your password (valid for 15 minutes):\n" +
+                            "%s\n\n" +
+                            "If you did not request this, you can safely ignore this email.\n\n" +
+                            "Best regards,\n" +
+                            "UniHUB Administration Team",
+                    username, resetLink
+            );
+
+            message.setText(emailBody);
+            mailSender.send(message);
+            System.out.println("Password reset email sent successfully to: " + toEmail);
+        }catch (Exception e){
+            System.err.println("Failed to send password reset email to: " + toEmail + ", Error: " + e.getMessage());
+            throw new RuntimeException("Failed to send password reset email: " + e.getMessage());
+        }
+    }
 }

@@ -93,22 +93,23 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<AppointmentDTO> getAllAppointmentsByStudentId(Integer studentId) {
         List<AppointmentDTO> appointments = new ArrayList<>();
-        String sql = "SELECT * FROM appointment WHERE student_id = ?";
+
+        String sql = "SELECT * FROM appointment WHERE student_Id = ?";
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, studentId);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
                 AppointmentDTO appointment = new AppointmentDTO(
-                        rs.getInt("appointment_id"),
-                        rs.getInt("lecturer_id"),
-                        rs.getInt("student_id"),
+
+                        rs.getInt("appointment_Id"),
+                        rs.getInt("lecturer_Id"),
+                        rs.getInt("student_Id"),
                         rs.getString("purpose"),
                         rs.getDate("date").toLocalDate(),       // Convert to LocalDate
                         rs.getTime("time").toLocalTime(),       // Convert to LocalTime
-                        rs.getString("status"),                 // You missed status in your example
-                        rs.getString("location"),
-                        rs.getInt("duration")
+                        rs.getString("status")                // You missed status in your example
+
                 );
 
                 appointments.add(appointment);
@@ -123,8 +124,10 @@ public class StudentDAOImpl implements StudentDAO {
     public AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO) {
         String sql = """
         UPDATE appointment
-        SET lecturer_id=?, purpose=?, date=?, time=?, duration=?
-        WHERE status='PENDING' AND appointment_id=? AND student_id=?
+
+        SET lecturer_Id=?, purpose=?, date=?, time=?
+        WHERE status='PENDING' AND appointment_Id=? AND student_Id=?
+
         """;
 
         try (Connection conn = databaseConnection.getConnection();
@@ -134,15 +137,17 @@ public class StudentDAOImpl implements StudentDAO {
             ps.setString(2, appointmentDTO.getPurpose());
             ps.setDate(3, Date.valueOf(appointmentDTO.getDate()));
             ps.setTime(4, Time.valueOf(appointmentDTO.getTime()));
-            ps.setInt(5, appointmentDTO.getDuration());
-            ps.setInt(6, appointmentDTO.getAppointmentId());
-
-            ps.setInt(7, appointmentDTO.getStudentId()); // assuming you have this in DTO
 
 
-            if (!"APPROVED".equals(appointmentDTO.getStatus()) && !"REJECTED".equals(appointmentDTO.getStatus())) {
-                throw new IllegalStateException("Only APPROVED or REJECTED appointments can be updated");
+            ps.setInt(5, appointmentDTO.getAppointmentId());
+
+            ps.setInt(6, appointmentDTO.getStudentId()); // assuming you have this in DTO
+
+
+            if (!"PENDING".equals(appointmentDTO.getStatus())) {
+                throw new IllegalStateException("Only PENDING appointments can be updated");
             }
+
 
             int updated = ps.executeUpdate();
             if (updated == 0) {
@@ -158,8 +163,9 @@ public class StudentDAOImpl implements StudentDAO {
 
     @Override
     public String deleteAppointment(Integer appointmentId) {
-        String checkSql = "SELECT status FROM appointment WHERE appointment_id = ?";
-        String deleteSql = "DELETE FROM appointment WHERE appointment_id = ?";
+
+        String checkSql = "SELECT status FROM appointment WHERE appointment_Id = ?";
+        String deleteSql = "DELETE FROM appointment WHERE appointment_Id = ?";
 
         try (Connection conn = databaseConnection.getConnection()) {
 
@@ -194,9 +200,11 @@ public class StudentDAOImpl implements StudentDAO {
     @Override
     public List<LecturerDTO> getAllLecturers() {
         List<LecturerDTO> lecturers = new ArrayList<>();
-        String sql = "SELECT l.lecturer_id, u.user_id, u.f_name, u.l_name, u.email " +
+
+        String sql = "SELECT l.lecturer_Id, u.user_Id, u.f_name, u.l_name, u.email " +
                 "FROM lecturer l " +
-                "INNER JOIN user u ON l.user_id = u.user_id";
+                "INNER JOIN user u ON l.user_Id = u.user_Id";
+
 
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql);
@@ -204,11 +212,13 @@ public class StudentDAOImpl implements StudentDAO {
 
             while (rs.next()) {
                 LecturerDTO lecturer = new LecturerDTO();
-                lecturer.setLecturerId(rs.getInt("lecturer_id"));
-                lecturer.setUserId(rs.getInt("user_id"));
+
+                lecturer.setLecturerId(rs.getInt("lecturer_Id"));
+                lecturer.setUserId(rs.getInt("user_Id"));
 
                 UserDTO user = new UserDTO();
-                user.setUserId(rs.getInt("user_id"));
+                user.setUserId(rs.getInt("user_Id"));
+
                 user.setFName(rs.getString("f_name") + " " + rs.getString("l_name"));
                 user.setEmail(rs.getString("email"));
 
@@ -234,7 +244,9 @@ public class StudentDAOImpl implements StudentDAO {
             throw new RuntimeException("Lecturer is not available at this time.");
         }
 
-        String sql = "INSERT INTO appointment (lecturer_Id, student_Id, purpose, date, time, status,location,duration) VALUES (?, ?, ?, ?, ?, ?)";
+
+        String sql = "INSERT INTO appointment (lecturer_Id, student_Id, purpose, date, time, status) VALUES (?, ?, ?, ?, ?, ?)";
+
         try (Connection conn = databaseConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
@@ -244,8 +256,7 @@ public class StudentDAOImpl implements StudentDAO {
             stmt.setDate(4, Date.valueOf(appointmentDTO.getDate()));
             stmt.setTime(5, Time.valueOf(appointmentDTO.getTime()));
             stmt.setString(6, appointmentDTO.getStatus());
-            stmt.setString(7,appointmentDTO.getLocation());
-            stmt.setInt(8,appointmentDTO.getDuration());
+
 
             int affectedRows = stmt.executeUpdate();
 

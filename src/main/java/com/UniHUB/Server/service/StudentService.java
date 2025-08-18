@@ -16,9 +16,10 @@ public interface StudentService {
     AppointmentDTO makeAppointment(AppointmentDTO appointmentDTO);
     public boolean isLecturerAvailable(Integer lecturerId, LocalDate date, LocalTime time);
 
-    
+
     void addFeedback(FeedbackDTO feedback);
     boolean updateQuery(QueryDTO queryDTO);
+
 
     List<AppointmentDTO> getAllAppointmentsByStudentId(Integer studentId);
     AppointmentDTO updateAppointment(AppointmentDTO appointmentDTO);
