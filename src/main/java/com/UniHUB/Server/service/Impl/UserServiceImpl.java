@@ -31,14 +31,35 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Invalid password");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole(), user.getUserId());
+        Integer studentId = null;
+        Integer lecturerId = null;
 
+        // Fetch role-specific ID
+        if (user.getRole().equalsIgnoreCase("student")) {
+            studentId = userDAO.findStudentIdByUserId(user.getUserId());
+        } else if (user.getRole().equalsIgnoreCase("lecturer")) {
+            lecturerId = userDAO.findLecturerIdByUserId(user.getUserId());
+        }
+
+        // Generate token with role-specific ID
+        String token = jwtUtil.generateToken(
+                user.getEmail(),
+                user.getRole(),
+                user.getUserId(),
+                studentId,
+                lecturerId
+        );
+
+        // Return DTO including role-specific ID
         return new UserResponseDTO(
                 user.getUserId(),
                 user.getFName(),
                 user.getEmail(),
                 user.getRole(),
-                token
+                token,
+                studentId,
+                lecturerId
         );
     }
+
 }
