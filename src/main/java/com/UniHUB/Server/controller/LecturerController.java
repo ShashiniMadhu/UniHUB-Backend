@@ -268,6 +268,11 @@ public class LecturerController {
         }
     }
 
+    @GetMapping("/appointments/{lecturerId}")
+    public List<AppointmentDTO> getAllAppointmentsByLecturerId(@PathVariable int lecturerId) {
+        return lecturerService.getAllAppointmentsByLecturerId(lecturerId);
+    }
+
 
     @PutMapping(value = "/{lecturerId}/announcement/{announcementId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> editAnnouncement(
